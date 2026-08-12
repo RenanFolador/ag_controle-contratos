@@ -63,6 +63,13 @@ exata do realm, por exemplo `http://localhost:8081/realms/contract-manager`.
 Todas as rotas `/api/v1/**` exigem um bearer token válido. Permanecem públicos
 somente o health/info do Actuator e a documentação OpenAPI.
 
+O frontend utiliza Authorization Code Flow com PKCE pelo adaptador oficial do
+Keycloak. Configure `url`, `realm` e `clientId` nos arquivos em
+`frontend/src/environments`. O cliente deve ser público, ter Standard Flow
+habilitado e aceitar as URLs de redirect e web origins do frontend. Os tokens
+permanecem somente em memória, as chamadas para o backend recebem o bearer token
+automaticamente e as rotas da aplicação exigem login.
+
 Com o banco saudável, execute a aplicação:
 
 ```bash

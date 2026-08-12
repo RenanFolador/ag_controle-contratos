@@ -10,23 +10,33 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
+import { AuthService } from './core/auth/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule,
-    MatDividerModule, MatExpansionModule, MatIconModule, MatListModule,
-    MatSidenavModule, MatToolbarModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatListModule,
+    MatSidenavModule,
+    MatToolbarModule,
+  ],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   @ViewChild(MatSidenav) private sidenav?: MatSidenav;
 
   private readonly breakpointObserver = inject(BreakpointObserver);
+  protected readonly auth = inject(AuthService);
   protected readonly isHandset = toSignal(
-    this.breakpointObserver.observe(Breakpoints.Handset)
-      .pipe(map(result => result.matches)),
-    { initialValue: false }
+    this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches)),
+    { initialValue: false },
   );
 
   protected closeNavigationOnHandset(): void {

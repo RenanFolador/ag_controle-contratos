@@ -1,4 +1,9 @@
 export const environment = {
   production: true,
-  backendUrl: ''
+  backendUrl: '',
+  keycloak: {
+    url: '',
+    realm: 'contract-manager',
+    clientId: 'contract-manager-web',
+  },
 };

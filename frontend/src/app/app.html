@@ -1,17 +1,23 @@
 <mat-sidenav-container class="shell">
-  <mat-sidenav #sidenav
+  <mat-sidenav
+    #sidenav
     class="navigation"
     [mode]="isHandset() ? 'over' : 'side'"
     [opened]="!isHandset()"
-    [fixedInViewport]="isHandset()">
+    [fixedInViewport]="isHandset()"
+  >
     <div class="brand">
       <mat-icon>business_center</mat-icon>
       <div><strong>Contratos</strong><small>Gestão organizacional</small></div>
     </div>
     <mat-divider />
     <mat-nav-list>
-      <a mat-list-item routerLink="/dashboard" routerLinkActive="active"
-         (click)="closeNavigationOnHandset()">
+      <a
+        mat-list-item
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        (click)="closeNavigationOnHandset()"
+      >
         <mat-icon matListItemIcon>dashboard</mat-icon><span matListItemTitle>Dashboard</span>
       </a>
 
@@ -19,24 +25,52 @@
         <mat-expansion-panel-header>
           <mat-panel-title><mat-icon>description</mat-icon>Contratos</mat-panel-title>
         </mat-expansion-panel-header>
-        <a mat-list-item routerLink="/contracts" routerLinkActive="active"
-           [routerLinkActiveOptions]="{ exact: true }" (click)="closeNavigationOnHandset()">Todos</a>
-        <a mat-list-item routerLink="/contracts/new" routerLinkActive="active"
-           (click)="closeNavigationOnHandset()">Novo contrato</a>
-        <a mat-list-item routerLink="/contracts/expiring" routerLinkActive="active"
-           (click)="closeNavigationOnHandset()">Próximos do vencimento</a>
+        <a
+          mat-list-item
+          routerLink="/contracts"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeNavigationOnHandset()"
+          >Todos</a
+        >
+        <a
+          mat-list-item
+          routerLink="/contracts/new"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+          >Novo contrato</a
+        >
+        <a
+          mat-list-item
+          routerLink="/contracts/expiring"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+          >Próximos do vencimento</a
+        >
       </mat-expansion-panel>
 
-      <a mat-list-item routerLink="/persons" routerLinkActive="active"
-         (click)="closeNavigationOnHandset()">
+      <a
+        mat-list-item
+        routerLink="/persons"
+        routerLinkActive="active"
+        (click)="closeNavigationOnHandset()"
+      >
         <mat-icon matListItemIcon>people</mat-icon><span matListItemTitle>Pessoas</span>
       </a>
-      <a mat-list-item routerLink="/notificacoes" routerLinkActive="active"
-         (click)="closeNavigationOnHandset()">
+      <a
+        mat-list-item
+        routerLink="/notificacoes"
+        routerLinkActive="active"
+        (click)="closeNavigationOnHandset()"
+      >
         <mat-icon matListItemIcon>notifications</mat-icon><span matListItemTitle>Notificações</span>
       </a>
-      <a mat-list-item routerLink="/administration" routerLinkActive="active"
-         (click)="closeNavigationOnHandset()">
+      <a
+        mat-list-item
+        routerLink="/administration"
+        routerLinkActive="active"
+        (click)="closeNavigationOnHandset()"
+      >
         <mat-icon matListItemIcon>settings</mat-icon><span matListItemTitle>Administração</span>
       </a>
     </mat-nav-list>
@@ -51,7 +85,17 @@
       }
       <span>Controle de Contratos</span>
       <span class="toolbar-spacer"></span>
-      <span class="environment-label">Ambiente interno</span>
+      @if (auth.authenticated) {
+        <span class="user-name">{{ auth.userName }}</span>
+        <button mat-icon-button aria-label="Sair" title="Sair" (click)="auth.logout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      } @else {
+        <button mat-button (click)="auth.login()">
+          <mat-icon>login</mat-icon>
+          Entrar
+        </button>
+      }
     </mat-toolbar>
     <main><router-outlet /></main>
   </mat-sidenav-content>
