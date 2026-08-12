@@ -1,0 +1,13 @@
+package com.organization.contractmanager.domain;
+
+public enum HistoryAction {
+    CREATE_CONTRACT,
+    UPDATE_CONTRACT,
+    CHANGE_EXPIRATION_DATE,
+    CLOSE_CONTRACT,
+    CANCEL_CONTRACT,
+    ADD_ASSIGNMENT,
+    REMOVE_ASSIGNMENT,
+    NOTIFICATION_SENT,
+    NOTIFICATION_FAILED
+}

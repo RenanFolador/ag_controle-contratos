@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:contract_manager}
+    username: ${DB_USERNAME:contract_manager}
+    password: ${DB_PASSWORD:change-me}
+    hikari:
+      connection-timeout: 10000
+      maximum-pool-size: 10
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    com.organization.contractmanager: DEBUG
+    org.flywaydb: INFO
