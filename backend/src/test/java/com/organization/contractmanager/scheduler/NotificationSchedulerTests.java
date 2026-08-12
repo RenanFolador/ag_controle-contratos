@@ -14,7 +14,7 @@ class NotificationSchedulerTests {
     void delegatesUsingConfiguredCronAndSaoPauloTimezone() throws Exception {
         NotificationScheduleService service = org.mockito.Mockito.mock(
                 NotificationScheduleService.class);
-        NotificationScheduler scheduler = new NotificationScheduler(service);
+        NotificationScheduler scheduler = new NotificationScheduler(service, "0 0 8 * * *");
 
         scheduler.processDueNotifications();
 

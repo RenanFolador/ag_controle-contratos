@@ -78,8 +78,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiErrorResponse> handleUnexpected(
             Exception exception, HttpServletRequest request) {
-        LOGGER.error("Unexpected error processing {} {}",
-                request.getMethod(), request.getRequestURI(), exception);
+        LOGGER.error("Unexpected error processing method={} path={} errorType={}",
+                request.getMethod(), request.getRequestURI(),
+                exception.getClass().getSimpleName());
         return response(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Não foi possível concluir a operação.", request, Map.of());
     }

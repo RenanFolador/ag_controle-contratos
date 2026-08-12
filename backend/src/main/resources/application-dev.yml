@@ -14,5 +14,5 @@ spring:
 
 logging:
   level:
-    com.organization.contractmanager: DEBUG
+    com.organization.contractmanager: INFO
     org.flywaydb: INFO

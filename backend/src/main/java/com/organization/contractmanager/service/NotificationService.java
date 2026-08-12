@@ -27,9 +27,12 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class NotificationService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
 
     private final NotificationRepository notificationRepository;
     private final ContractAssignmentRepository assignmentRepository;
@@ -110,16 +113,27 @@ public class NotificationService {
             notification.markFailed(
                     "No provider configured for channel " + notification.getChannel());
             recordDelivery(notification, HistoryAction.NOTIFICATION_FAILED);
+            logFailure(notification, "ProviderNotConfigured");
             return;
         }
         try {
             provider.send(notification);
             notification.markSent(Instant.now(clock));
             recordDelivery(notification, HistoryAction.NOTIFICATION_SENT);
+            LOGGER.info("Notification sent notificationId={} contractId={} channel={}",
+                    notification.getId(), notification.getContract().getId(),
+                    notification.getChannel());
         } catch (RuntimeException exception) {
             notification.markFailed(exception.getMessage());
             recordDelivery(notification, HistoryAction.NOTIFICATION_FAILED);
+            logFailure(notification, exception.getClass().getSimpleName());
         }
+    }
+
+    private void logFailure(Notification notification, String errorType) {
+        LOGGER.warn("Notification failed notificationId={} contractId={} channel={} errorType={}",
+                notification.getId(), notification.getContract().getId(),
+                notification.getChannel(), errorType);
     }
 
     private void recordDelivery(Notification notification, HistoryAction action) {

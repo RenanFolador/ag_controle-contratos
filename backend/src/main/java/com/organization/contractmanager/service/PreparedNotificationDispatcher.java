@@ -19,7 +19,7 @@ public class PreparedNotificationDispatcher implements NotificationDispatcher {
     @Override
     public void dispatch(NotificationSchedule schedule) {
         int created = notificationService.createAndSendForSchedule(schedule).size();
-        LOGGER.info("Processed {} notifications for contract {} and expiration {}",
-                created, schedule.getContract().getId(), schedule.getExpirationDate());
+        LOGGER.info("Notifications generated scheduleId={} contractId={} count={}",
+                schedule.getId(), schedule.getContract().getId(), created);
     }
 }

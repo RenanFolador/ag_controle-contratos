@@ -123,6 +123,12 @@ mvn package
 
 O endpoint técnico público fica disponível em `GET /actuator/health`. A documentação OpenAPI pode ser consultada em `/v3/api-docs` e `/swagger-ui.html`.
 
+O Actuator expõe publicamente somente `/actuator/health` e `/actuator/info`; o
+health não revela componentes nem detalhes internos. Os logs operacionais
+registram o ciclo do scheduler, quantidades e identificadores técnicos de
+schedules/notificações. Senhas, JWTs completos, tokens de API, destinatários e
+conteúdo de credenciais não devem ser incluídos nos logs.
+
 ## Próximas etapas
 
 As próximas etapas inicializarão separadamente o backend Spring Boot, o banco PostgreSQL e o frontend Angular. As instruções de execução e testes serão acrescentadas conforme cada componente for criado.

@@ -14,9 +14,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class NotificationScheduleService {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(NotificationScheduleService.class);
 
     private final NotificationDeadlineRepository deadlineRepository;
     private final NotificationScheduleRepository scheduleRepository;
@@ -94,6 +98,8 @@ public class NotificationScheduleService {
         LocalDate today = LocalDate.now(clock);
         List<NotificationSchedule> dueSchedules = scheduleRepository.findDueSchedules(
                 NotificationScheduleStatus.PENDING, today);
+        LOGGER.info("Pending notification schedules found count={} processingDate={}",
+                dueSchedules.size(), today);
         int processed = 0;
 
         for (NotificationSchedule schedule : dueSchedules) {
@@ -101,6 +107,8 @@ public class NotificationScheduleService {
             if (contractStatus == ContractStatus.CLOSED
                     || contractStatus == ContractStatus.CANCELLED) {
                 schedule.cancelIfPending();
+                LOGGER.info("Notification schedule cancelled scheduleId={} contractId={} status={}",
+                        schedule.getId(), schedule.getContract().getId(), contractStatus);
                 continue;
             }
             if (contractStatus != ContractStatus.ACTIVE) {
@@ -112,8 +120,13 @@ public class NotificationScheduleService {
                 dispatcher.dispatch(schedule);
                 schedule.markProcessed(Instant.now(clock));
                 processed++;
+                LOGGER.info("Notification schedule processed scheduleId={} contractId={}",
+                        schedule.getId(), schedule.getContract().getId());
             } catch (RuntimeException exception) {
                 schedule.markFailed();
+                LOGGER.warn("Notification schedule failed scheduleId={} contractId={} errorType={}",
+                        schedule.getId(), schedule.getContract().getId(),
+                        exception.getClass().getSimpleName());
             }
         }
         scheduleRepository.saveAll(dueSchedules);
