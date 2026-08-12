@@ -30,7 +30,9 @@ class ResourceServerSecurityTests {
     @Test
     void rejectsProtectedApiWithoutBearerToken() throws Exception {
         mockMvc.perform(get("/api/v1/dashboard"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .jsonPath("$.message").value("Sua sessão expirou ou não é válida."));
     }
 
     @Test

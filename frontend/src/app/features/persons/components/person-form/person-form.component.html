@@ -7,4 +7,4 @@
   <mat-form-field appearance="outline"><mat-label>Telefone</mat-label><input matInput type="tel" formControlName="phone" /></mat-form-field>
   <mat-checkbox formControlName="whatsappEnabled">WhatsApp habilitado</mat-checkbox>
   @if (personId) { <mat-checkbox formControlName="active">Pessoa ativa</mat-checkbox> }
-</div></mat-card-content><mat-card-actions align="end"><a mat-button routerLink="/persons">Cancelar</a><button mat-flat-button color="primary" type="submit" [disabled]="saving()">Salvar</button></mat-card-actions></mat-card></form>
+</div></mat-card-content><mat-card-actions align="end"><a mat-button routerLink="/persons">Cancelar</a><button mat-flat-button color="primary" type="submit" [disabled]="saving()">{{ saving() ? 'Salvando...' : 'Salvar' }}</button></mat-card-actions></mat-card></form>

@@ -10,15 +10,23 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.organization.contractmanager.dto.ApiErrorResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import java.time.Instant;
 
 @Configuration
 public class SecurityConfig {
+    private final ObjectMapper objectMapper;
+
+    public SecurityConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,7 +35,12 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                        .authenticationEntryPoint((request, response, exception) -> writeSecurityError(
+                                response, request.getRequestURI(), HttpStatus.UNAUTHORIZED,
+                                "Sua sessão expirou ou não é válida."))
+                        .accessDeniedHandler((request, response, exception) -> writeSecurityError(
+                                response, request.getRequestURI(), HttpStatus.FORBIDDEN,
+                                "Você não possui permissão para esta operação.")))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -70,5 +83,14 @@ public class SecurityConfig {
                 .map(String.class::cast)
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private void writeSecurityError(
+            HttpServletResponse response, String path, HttpStatus status, String message)
+            throws java.io.IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        objectMapper.writeValue(response.getOutputStream(), new ApiErrorResponse(
+                Instant.now(), status.value(), status.getReasonPhrase(), message, path, Map.of()));
     }
 }

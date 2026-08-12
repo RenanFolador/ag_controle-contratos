@@ -36,7 +36,7 @@ export class PersonFormComponent {
   }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.saving() || this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.saving.set(true);
     const payload = this.form.getRawValue() as PersonPayload;
     const request = this.personId ? this.service.update(this.personId, payload) : this.service.create(payload);

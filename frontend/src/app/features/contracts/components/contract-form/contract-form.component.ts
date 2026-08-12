@@ -52,7 +52,7 @@ export class ContractFormComponent {
   }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.saving() || this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.saving.set(true);
     const payload = this.form.getRawValue() as ContractPayload;
     const request = this.contractId

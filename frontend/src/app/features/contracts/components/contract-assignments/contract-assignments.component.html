@@ -4,7 +4,7 @@
   <mat-form-field appearance="outline"><mat-label>Função</mat-label><mat-select formControlName="role">@for(role of roles;track role.value){<mat-option [value]="role.value">{{role.label}}</mat-option>}</mat-select></mat-form-field>
   <mat-form-field appearance="outline"><mat-label>Data inicial</mat-label><input matInput type="date" formControlName="startDate" /></mat-form-field>
   <mat-form-field appearance="outline"><mat-label>Data final</mat-label><input matInput type="date" formControlName="endDate" />@if(form.hasError('dateRange')){<mat-error>A data final deve ser posterior à inicial</mat-error>}</mat-form-field>
-</div><div class="form-actions"><button mat-button type="button" (click)="formVisible.set(false)">Cancelar</button><button mat-flat-button color="primary" type="submit">{{editingId()?'Salvar alteração':'Adicionar'}}</button></div></form></mat-card-content></mat-card>}
+</div><div class="form-actions"><button mat-button type="button" (click)="formVisible.set(false)" [disabled]="saving()">Cancelar</button><button mat-flat-button color="primary" type="submit" [disabled]="saving()">{{editingId()?'Salvar alteração':'Adicionar'}}</button></div></form></mat-card-content></mat-card>}
 <mat-card><mat-card-content><div class="table-container"><table mat-table [dataSource]="assignments()">
   <ng-container matColumnDef="person"><th mat-header-cell *matHeaderCellDef>Pessoa</th><td mat-cell *matCellDef="let item"><strong>{{item.person.name}}</strong><small>{{item.person.registration||'Sem matrícula'}}</small></td></ng-container>
   <ng-container matColumnDef="role"><th mat-header-cell *matHeaderCellDef>Função</th><td mat-cell *matCellDef="let item">{{roleLabel(item.role)}}</td></ng-container>

@@ -103,6 +103,9 @@
         </button>
       }
     </mat-toolbar>
+    @if (loading.active()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Carregando" />
+    }
     <main><router-outlet /></main>
   </mat-sidenav-content>
 </mat-sidenav-container>

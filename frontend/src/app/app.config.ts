@@ -11,6 +11,7 @@ import {
 
 import { routes } from './app.routes';
 import { provideKeycloakAuth } from './core/auth/keycloak.config';
+import { apiErrorInterceptor } from './core/http/api-error.interceptor';
 import { environment } from '../environments/environment';
 
 const escapedBackendUrl = environment.backendUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -29,7 +30,7 @@ export const appConfig: ApplicationConfig = {
       provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
       useValue: [backendRequest],
     },
-    provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
+    provideHttpClient(withInterceptors([apiErrorInterceptor, includeBearerTokenInterceptor])),
     provideAnimationsAsync(),
   ],
 };

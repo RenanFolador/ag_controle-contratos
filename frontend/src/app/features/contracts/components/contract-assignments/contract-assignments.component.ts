@@ -30,6 +30,7 @@ export class ContractAssignmentsComponent {
   readonly persons = signal<Person[]>([]);
   readonly editingId = signal<string | null>(null);
   readonly formVisible = signal(false);
+  readonly saving = signal(false);
   readonly displayedColumns = ['person', 'role', 'startDate', 'endDate', 'status', 'actions'];
   readonly roles: { value: ContractRole; label: string }[] = [
     { value: 'MANAGER', label: 'Gestor' },
@@ -64,13 +65,17 @@ export class ContractAssignmentsComponent {
   }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.saving() || this.form.invalid) { this.form.markAllAsTouched(); return; }
+    this.saving.set(true);
     const payload = this.form.getRawValue() as ContractAssignmentPayload;
     const id = this.editingId();
     const request = id ? this.service.update(this.contractId(), id, payload)
       : this.service.create(this.contractId(), payload);
-    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.formVisible.set(false); this.load();
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.saving.set(false); this.formVisible.set(false); this.load();
+      },
+      error: () => this.saving.set(false)
     });
   }
 
@@ -78,6 +83,7 @@ export class ContractAssignmentsComponent {
     const defaultDate = new Date().toISOString().slice(0, 10);
     const endDate = prompt('Data final do vínculo (AAAA-MM-DD):', defaultDate);
     if (!endDate || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) return;
+    if (!confirm('Confirma o encerramento deste vínculo?')) return;
     this.service.end(this.contractId(), assignment.id, endDate).pipe(
       takeUntilDestroyed(this.destroyRef)).subscribe(() => this.load());
   }

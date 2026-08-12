@@ -165,6 +165,19 @@ class ContractControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void hidesInternalDetailsForUnexpectedErrors() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(service.findById(id)).thenThrow(new RuntimeException("database password leaked"));
+
+        mockMvc.perform(get("/api/v1/contracts/{id}", id))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Não foi possível concluir a operação."))
+                .andExpect(jsonPath("$.message").value(
+                        org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("password"))));
+    }
+
     private String validPayload() {
         return """
                 {

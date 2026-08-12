@@ -8,10 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from './core/auth/auth.service';
 import { PermissionService } from './core/auth/permission.service';
+import { LoadingService } from './core/http/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +28,7 @@ import { PermissionService } from './core/auth/permission.service';
     MatListModule,
     MatSidenavModule,
     MatToolbarModule,
+    MatProgressBarModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -36,6 +39,7 @@ export class App {
   private readonly breakpointObserver = inject(BreakpointObserver);
   protected readonly auth = inject(AuthService);
   protected readonly permissions = inject(PermissionService);
+  protected readonly loading = inject(LoadingService);
   protected readonly isHandset = toSignal(
     this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches)),
     { initialValue: false },
