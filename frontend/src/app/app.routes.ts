@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-  { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.page').then(m => m.DashboardPage) },
+  { path: 'dashboard', loadComponent: () => import('./features/dashboard/components/dashboard/dashboard.component').then(m => m.DashboardComponent) },
   { path: 'contracts/expiring', loadComponent: () => import('./features/contracts/expiring-contracts.page').then(m => m.ExpiringContractsPage) },
   { path: 'contracts/new', loadComponent: () => import('./features/contracts/components/contract-form/contract-form.component').then(m => m.ContractFormComponent) },
   { path: 'contracts/:id/edit', loadComponent: () => import('./features/contracts/components/contract-form/contract-form.component').then(m => m.ContractFormComponent) },
