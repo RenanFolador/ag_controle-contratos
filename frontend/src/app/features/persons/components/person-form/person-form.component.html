@@ -1,0 +1,10 @@
+<header><h1>{{ personId ? 'Editar pessoa' : 'Nova pessoa' }}</h1><p>Informe os dados de contato e identificação.</p></header>
+<form [formGroup]="form" (ngSubmit)="save()"><mat-card><mat-card-content><div class="grid">
+  <mat-form-field appearance="outline" class="wide"><mat-label>Nome</mat-label><input matInput formControlName="name" />@if (form.controls.name.hasError('required')) { <mat-error>Campo obrigatório</mat-error> }</mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>CPF</mat-label><input matInput formControlName="cpf" maxlength="14" /></mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>Matrícula</mat-label><input matInput formControlName="registration" /></mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>E-mail</mat-label><input matInput type="email" formControlName="email" />@if (form.controls.email.hasError('email')) { <mat-error>E-mail inválido</mat-error> }</mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>Telefone</mat-label><input matInput type="tel" formControlName="phone" /></mat-form-field>
+  <mat-checkbox formControlName="whatsappEnabled">WhatsApp habilitado</mat-checkbox>
+  @if (personId) { <mat-checkbox formControlName="active">Pessoa ativa</mat-checkbox> }
+</div></mat-card-content><mat-card-actions align="end"><a mat-button routerLink="/persons">Cancelar</a><button mat-flat-button color="primary" type="submit" [disabled]="saving()">Salvar</button></mat-card-actions></mat-card></form>

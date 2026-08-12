@@ -8,7 +8,10 @@ export const routes: Routes = [
   { path: 'contracts/:id/edit', loadComponent: () => import('./features/contracts/components/contract-form/contract-form.component').then(m => m.ContractFormComponent) },
   { path: 'contracts/:id', loadComponent: () => import('./features/contracts/components/contract-detail/contract-detail.component').then(m => m.ContractDetailComponent) },
   { path: 'contracts', loadComponent: () => import('./features/contracts/components/contract-list/contract-list.component').then(m => m.ContractListComponent) },
-  { path: 'persons', loadComponent: () => import('./features/persons/persons.page').then(m => m.PersonsPage) },
+  { path: 'persons/new', loadComponent: () => import('./features/persons/components/person-form/person-form.component').then(m => m.PersonFormComponent) },
+  { path: 'persons/:id/edit', loadComponent: () => import('./features/persons/components/person-form/person-form.component').then(m => m.PersonFormComponent) },
+  { path: 'persons/:id', loadComponent: () => import('./features/persons/components/person-detail/person-detail.component').then(m => m.PersonDetailComponent) },
+  { path: 'persons', loadComponent: () => import('./features/persons/components/person-list/person-list.component').then(m => m.PersonListComponent) },
   { path: 'notifications', loadComponent: () => import('./features/notifications/notifications.page').then(m => m.NotificationsPage) },
   { path: 'administration', loadComponent: () => import('./features/administration/administration.page').then(m => m.AdministrationPage) },
   { path: '**', redirectTo: 'dashboard' }

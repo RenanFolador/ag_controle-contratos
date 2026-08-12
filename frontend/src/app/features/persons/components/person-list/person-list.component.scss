@@ -1,0 +1,2 @@
+header { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1.5rem; }h1 { margin-bottom:.25rem; }header p { margin:0; color:var(--mat-sys-on-surface-variant); }mat-form-field { width:min(100%, 480px); }.table-container { overflow-x:auto; }table { width:100%; min-width:760px; }.inactive { color:var(--mat-sys-error); }.empty { padding:2rem; text-align:center; }
+@media (max-width:599px) { header { align-items:flex-start; flex-direction:column; } }
