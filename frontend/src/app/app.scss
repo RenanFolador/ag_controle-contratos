@@ -1,77 +1,196 @@
 .shell {
   min-height: 100vh;
+  background: var(--app-background);
 }
+
 .navigation {
-  width: 280px;
+  width: 274px;
   padding: 1rem 0.75rem;
+  color: #e8f1f8;
+  background: linear-gradient(180deg, var(--app-navy) 0%, var(--app-navy-deep) 100%);
+  border-right: 0;
+  box-shadow: 8px 0 24px rgba(11, 31, 51, 0.12);
 }
+
 .brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 0.5rem 1.25rem;
+  padding: 0.65rem 0.5rem 1.25rem;
 }
+
 .brand mat-icon {
-  width: 32px;
-  height: 32px;
-  font-size: 32px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  padding: 0.45rem;
+  color: #dffbff;
+  font-size: 25px;
+  background: linear-gradient(145deg, #1593a3, #1769aa);
+  border-radius: 10px;
+  box-shadow: 0 8px 18px rgba(8, 127, 140, 0.26);
 }
+
 .brand div {
   display: flex;
   flex-direction: column;
+  line-height: 1.2;
 }
+
+.brand strong {
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
 .brand small {
-  color: var(--mat-sys-on-surface-variant);
-  margin-top: 0.15rem;
+  margin-top: 0.25rem;
+  color: #a9bfd2;
+  font-size: 0.69rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
+
+.navigation mat-divider {
+  border-top-color: rgba(226, 241, 250, 0.14);
+}
+
 mat-nav-list {
   display: grid;
-  gap: 0.25rem;
-  margin-top: 0.75rem;
+  gap: 0.3rem;
+  margin-top: 1rem;
 }
+
+.navigation ::ng-deep .mdc-list-item__primary-text,
+.navigation ::ng-deep .mat-expansion-panel-header-title {
+  color: #d6e4ef;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.navigation ::ng-deep .mat-mdc-list-item {
+  min-height: 44px;
+  border-radius: 9px;
+}
+
+.navigation ::ng-deep .mat-mdc-list-item mat-icon,
+.navigation ::ng-deep .mat-expansion-panel-header mat-icon {
+  color: #8eafc6;
+}
+
+.navigation ::ng-deep .mat-mdc-list-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .contracts-menu {
   background: transparent;
+  border-radius: 9px;
 }
+
 .contracts-menu mat-panel-title {
   align-items: center;
   gap: 1rem;
 }
+
 .contracts-menu a {
   padding-left: 3.5rem;
 }
-.active {
-  background: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
-  border-radius: 2rem;
+
+.navigation .active {
+  color: #fff;
+  background: linear-gradient(90deg, rgba(23, 105, 170, 0.72), rgba(8, 127, 140, 0.52));
+  box-shadow: inset 3px 0 #7de3e7;
 }
+
+.navigation .active ::ng-deep .mdc-list-item__primary-text,
+.navigation .active ::ng-deep mat-icon {
+  color: #fff;
+}
+
 .toolbar {
   position: sticky;
   top: 0;
   z-index: 10;
+  min-height: 64px;
+  color: var(--app-navy);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--app-border);
+  box-shadow: 0 4px 16px rgba(16, 42, 67, 0.05);
+  backdrop-filter: blur(12px);
 }
+
+.toolbar-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+}
+
+.toolbar-title strong {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.toolbar-eyebrow {
+  color: var(--app-cyan);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
 .toolbar-spacer {
   flex: 1;
 }
+
 .user-name {
-  font-size: 0.85rem;
-  font-weight: 400;
-  margin-right: 0.25rem;
+  max-width: 180px;
+  margin-right: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  overflow: hidden;
+  color: #36526b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #edf4f8;
+  border: 1px solid #d8e5ed;
+  border-radius: 999px;
 }
+
 main {
   box-sizing: border-box;
   min-height: calc(100vh - 64px);
-  padding: 1.5rem;
+  padding: 2rem clamp(1rem, 3vw, 2.75rem);
+}
+
+main > router-outlet + * {
+  display: block;
+  width: min(100%, 1440px);
+  margin: 0 auto;
 }
 
 @media (max-width: 599px) {
   .navigation {
     width: min(84vw, 300px);
   }
-  .user-name {
+
+  .toolbar {
+    min-height: 56px;
+  }
+
+  .toolbar-eyebrow {
     display: none;
   }
+
+  .user-name {
+    max-width: 120px;
+    padding: 0.35rem 0.55rem;
+  }
+
   main {
     min-height: calc(100vh - 56px);
-    padding: 1rem;
+    padding: 1.25rem 1rem;
   }
 }

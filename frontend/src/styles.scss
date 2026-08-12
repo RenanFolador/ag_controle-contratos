@@ -1,8 +1,111 @@
 @use '@angular/material' as mat;
 
 html {
-  @include mat.theme((color: (primary: mat.$azure-palette, tertiary: mat.$blue-palette), typography: Roboto, density: 0));
+  @include mat.theme((
+    color: (
+      primary: mat.$blue-palette,
+      tertiary: mat.$cyan-palette,
+      theme-type: light
+    ),
+    typography: Roboto,
+    density: 0
+  ));
+  color-scheme: light;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background: #f5f6f8; }
+:root {
+  --app-navy: #102a43;
+  --app-navy-deep: #0b1f33;
+  --app-blue: #1769aa;
+  --app-cyan: #087f8c;
+  --app-surface: #ffffff;
+  --app-background: #f3f6fa;
+  --app-border: #dce5ee;
+  --app-muted: #64748b;
+  --app-shadow: 0 12px 30px rgba(16, 42, 67, 0.08);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  color: var(--app-navy);
+  background: var(--app-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+.mat-mdc-card {
+  border: 1px solid var(--app-border);
+  border-radius: 14px !important;
+  box-shadow: var(--app-shadow) !important;
+  background: var(--app-surface);
+}
+
+.mat-mdc-card-header {
+  padding: 1.25rem 1.25rem 0.5rem !important;
+}
+
+.mat-mdc-card-content {
+  color: var(--app-navy);
+}
+
+.mat-mdc-table {
+  background: transparent !important;
+}
+
+.mat-mdc-header-row {
+  background: #eef4f9;
+}
+
+.mat-mdc-header-cell {
+  color: #52677d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mat-mdc-cell {
+  color: #243b53;
+  border-bottom-color: #e6edf3;
+}
+
+.mat-mdc-row:hover {
+  background: #f5f9fc;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  min-height: 1.25rem;
+}
+
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button {
+  border-radius: 8px !important;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  border-radius: 8px !important;
+}
+
+.mat-mdc-icon-button {
+  border-radius: 8px !important;
+}
