@@ -59,6 +59,8 @@ public class SecurityConfig {
                             .hasAnyRole("ADMIN", "CONTRACT_MANAGER", "VIEWER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/dashboard")
                             .hasAnyRole("ADMIN", "CONTRACT_MANAGER", "VIEWER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reports/**")
+                            .hasAnyRole("ADMIN", "CONTRACT_MANAGER", "VIEWER")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/**").denyAll()
                         .anyRequest().denyAll())

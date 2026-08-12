@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ContractAssignmentRepository extends JpaRepository<ContractAssignment, UUID> {
+public interface ContractAssignmentRepository extends JpaRepository<ContractAssignment, UUID>,
+        JpaSpecificationExecutor<ContractAssignment> {
 
     List<ContractAssignment> findAllByContractIdOrderByCreatedAtAsc(UUID contractId);
 

@@ -29,6 +29,10 @@ export class PermissionService {
     return this.auth.hasAnyRole('ADMIN', 'CONTRACT_MANAGER', 'VIEWER');
   }
 
+  canViewReports(): boolean {
+    return this.auth.hasAnyRole('ADMIN', 'CONTRACT_MANAGER', 'VIEWER');
+  }
+
   canManageAdministration(): boolean {
     return this.auth.hasAnyRole('ADMIN');
   }

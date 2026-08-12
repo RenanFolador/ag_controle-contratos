@@ -86,6 +86,10 @@ export const routes: Routes = [
       },
       { path: 'notifications', redirectTo: 'notificacoes' },
       {
+        path: 'reports',
+        loadComponent: () => import('./features/reports/reports.page').then((m) => m.ReportsPage),
+      },
+      {
         path: 'administration',
         loadComponent: () =>
           import('./features/administration/administration.page').then((m) => m.AdministrationPage),

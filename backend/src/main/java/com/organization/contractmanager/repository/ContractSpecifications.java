@@ -55,4 +55,26 @@ public final class ContractSpecifications {
         return (root, query, builder) -> builder.between(
                 root.get("endDate"), today, today.plusDays(expirationDays));
     }
+
+    public static Specification<Contract> companyContains(String company) {
+        if (company == null || company.isBlank()) {
+            return null;
+        }
+        String pattern = "%" + company.trim().toLowerCase() + "%";
+        return (root, query, builder) ->
+                builder.like(builder.lower(root.get("companyName")), pattern);
+    }
+
+    public static Specification<Contract> endDateBetween(LocalDate start, LocalDate end) {
+        if (start == null && end == null) return null;
+        if (start == null) return (root, query, builder) ->
+                builder.lessThanOrEqualTo(root.get("endDate"), end);
+        if (end == null) return (root, query, builder) ->
+                builder.greaterThanOrEqualTo(root.get("endDate"), start);
+        return (root, query, builder) -> builder.between(root.get("endDate"), start, end);
+    }
+
+    public static Specification<Contract> expiredBefore(LocalDate today) {
+        return (root, query, builder) -> builder.lessThan(root.get("endDate"), today);
+    }
 }

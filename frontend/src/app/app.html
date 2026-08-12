@@ -72,6 +72,16 @@
           ><span matListItemTitle>Notificações</span>
         </a>
       }
+      @if (permissions.canViewReports()) {
+        <a
+          mat-list-item
+          routerLink="/reports"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+        >
+          <mat-icon matListItemIcon>assessment</mat-icon><span matListItemTitle>Relatórios</span>
+        </a>
+      }
       @if (permissions.canManageAdministration()) {
         <a
           mat-list-item

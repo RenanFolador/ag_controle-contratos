@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+header {
+  margin-bottom: 1.25rem;
+}
+header h1 {
+  margin-bottom: 0.25rem;
+}
+header p,
+.future-formats {
+  color: #5f6368;
+}
+form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+button[type='submit'] {
+  justify-self: start;
+  min-width: 10rem;
+}
+.future-formats {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+@media (max-width: 720px) {
+  form {
+    grid-template-columns: 1fr;
+  }
+}

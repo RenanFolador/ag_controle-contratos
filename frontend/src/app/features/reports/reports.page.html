@@ -1,0 +1,62 @@
+<header>
+  <h1>Relatórios</h1>
+  <p>Exporte dados operacionais aplicando os filtros necessários.</p>
+</header>
+
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="export()">
+      <mat-form-field appearance="outline">
+        <mat-label>Relatório</mat-label>
+        <mat-select formControlName="type">
+          @for (type of types; track type.value) {
+            <mat-option [value]="type.value">{{ type.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Formato</mat-label>
+        <mat-select formControlName="format"><mat-option value="CSV">CSV</mat-option></mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Ano</mat-label><input matInput type="number" formControlName="year" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Status do contrato</mat-label>
+        <mat-select formControlName="status">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (status of statuses; track status) {
+            <mat-option [value]="status">{{ status }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Período inicial</mat-label
+        ><input matInput type="date" formControlName="startDate" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Período final</mat-label><input matInput type="date" formControlName="endDate" />
+        @if (form.controls.endDate.hasError('period')) {
+          <mat-error>A data final deve ser igual ou posterior à inicial.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Responsável</mat-label>
+        <mat-select formControlName="personId">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (person of persons(); track person.id) {
+            <mat-option [value]="person.id">{{ person.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Empresa</mat-label><input matInput formControlName="company" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="exporting()">
+        <mat-icon>download</mat-icon>{{ exporting() ? 'Gerando...' : 'Exportar CSV' }}
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<p class="future-formats">A estrutura de exportação está preparada para os formatos XLSX e PDF.</p>
