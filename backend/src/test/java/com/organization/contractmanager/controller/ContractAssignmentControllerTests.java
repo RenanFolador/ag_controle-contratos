@@ -18,6 +18,7 @@ import com.organization.contractmanager.dto.ContractAssignmentResponse;
 import com.organization.contractmanager.exception.ContractNotFoundException;
 import com.organization.contractmanager.security.SecurityConfig;
 import com.organization.contractmanager.service.ContractAssignmentService;
+import com.organization.contractmanager.security.ContractAccessPolicy;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -40,6 +41,8 @@ class ContractAssignmentControllerTests {
 
     @MockitoBean
     private ContractAssignmentService service;
+    @MockitoBean
+    private ContractAccessPolicy accessPolicy;
 
     @Test
     void rejectsUnauthenticatedRequest() throws Exception {
@@ -48,7 +51,7 @@ class ContractAssignmentControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void listsAssignmentsWithPersonData() throws Exception {
         UUID contractId = UUID.randomUUID();
         when(service.findByContract(contractId)).thenReturn(List.of(response(contractId, true)));
@@ -60,7 +63,7 @@ class ContractAssignmentControllerTests {
     }
 
     @Test
-    @WithMockUser(username = "manager")
+    @WithMockUser(username = "manager", roles = "ADMIN")
     void createsAssignment() throws Exception {
         UUID contractId = UUID.randomUUID();
         ContractAssignmentResponse response = response(contractId, true);
@@ -76,7 +79,7 @@ class ContractAssignmentControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void validatesAssignmentPayload() throws Exception {
         mockMvc.perform(post("/api/v1/contracts/{id}/assignments", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +91,7 @@ class ContractAssignmentControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void updatesAssignment() throws Exception {
         UUID contractId = UUID.randomUUID();
         UUID assignmentId = UUID.randomUUID();
@@ -103,7 +106,7 @@ class ContractAssignmentControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void logicallyRemovesAssignment() throws Exception {
         UUID contractId = UUID.randomUUID();
         UUID assignmentId = UUID.randomUUID();
@@ -119,7 +122,7 @@ class ContractAssignmentControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsNotFoundWhenContractDoesNotExist() throws Exception {
         UUID contractId = UUID.randomUUID();
         when(service.findByContract(contractId)).thenThrow(new ContractNotFoundException(contractId));

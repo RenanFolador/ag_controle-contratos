@@ -14,6 +14,7 @@ import { PersonService } from '../../../persons/services/person.service';
 import { ContractAssignment, ContractAssignmentPayload, ContractRole } from '../../models/contract-assignment';
 import { ContractAssignmentService } from '../../services/contract-assignment.service';
 import { validDateRange } from '../contract-form/contract-form.component';
+import { PermissionService } from '../../../../core/auth/permission.service';
 
 @Component({ selector: 'app-contract-assignments', imports: [DatePipe, ReactiveFormsModule,
   MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
@@ -22,6 +23,7 @@ import { validDateRange } from '../contract-form/contract-form.component';
 export class ContractAssignmentsComponent {
   readonly contractId = input.required<string>();
   private readonly service = inject(ContractAssignmentService);
+  readonly permissions = inject(PermissionService);
   private readonly personService = inject(PersonService);
   private readonly destroyRef = inject(DestroyRef);
   readonly assignments = signal<ContractAssignment[]>([]);

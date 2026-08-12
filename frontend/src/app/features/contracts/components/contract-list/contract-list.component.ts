@@ -14,6 +14,7 @@ import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ContractSummary } from '../../models/contract';
 import { ContractService } from '../../services/contract.service';
+import { PermissionService } from '../../../../core/auth/permission.service';
 
 @Component({
   selector: 'app-contract-list',
@@ -26,6 +27,7 @@ import { ContractService } from '../../services/contract.service';
 export class ContractListComponent {
   @ViewChild(MatPaginator) private paginator?: MatPaginator;
   private readonly service = inject(ContractService);
+  readonly permissions = inject(PermissionService);
   private readonly destroyRef = inject(DestroyRef);
   readonly search = new FormControl('', { nonNullable: true });
   readonly contracts = signal<ContractSummary[]>([]);

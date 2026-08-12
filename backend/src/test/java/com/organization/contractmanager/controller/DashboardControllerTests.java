@@ -29,7 +29,7 @@ class DashboardControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsDashboardMetrics() throws Exception {
         when(service.getDashboard()).thenReturn(new DashboardResponse(10, 2, 1, 3, 5, 4));
         mockMvc.perform(get("/api/v1/dashboard"))

@@ -44,7 +44,7 @@ class PersonControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void createsPerson() throws Exception {
         UUID id = UUID.randomUUID();
         when(service.create(any())).thenReturn(response(id, true));
@@ -59,7 +59,7 @@ class PersonControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void validatesNameAndEmail() throws Exception {
         mockMvc.perform(post("/api/v1/persons")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ class PersonControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void searchesByName() throws Exception {
         when(service.findAll("maria")).thenReturn(List.of(response(UUID.randomUUID(), true)));
 
@@ -81,7 +81,7 @@ class PersonControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsNotFound() throws Exception {
         UUID id = UUID.randomUUID();
         when(service.findById(id)).thenThrow(new PersonNotFoundException(id));
@@ -91,7 +91,7 @@ class PersonControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsConflictForDuplicateCpf() throws Exception {
         when(service.create(any())).thenThrow(new DuplicatePersonCpfException("123.456.789-01"));
 
@@ -102,7 +102,7 @@ class PersonControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void updatesAndDeactivatesPerson() throws Exception {
         UUID id = UUID.randomUUID();
         when(service.update(any(), any())).thenReturn(response(id, false));

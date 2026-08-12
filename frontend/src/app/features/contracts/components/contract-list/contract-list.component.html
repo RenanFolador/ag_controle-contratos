@@ -1,5 +1,5 @@
 <header><div><h1>Contratos</h1><p>Consulte e acompanhe os contratos cadastrados.</p></div>
-  <a mat-flat-button color="primary" routerLink="/contracts/new"><mat-icon>add</mat-icon>Novo contrato</a></header>
+  @if (permissions.canManageContracts()) { <a mat-flat-button color="primary" routerLink="/contracts/new"><mat-icon>add</mat-icon>Novo contrato</a> }</header>
 <mat-card>
   <mat-card-content>
     <mat-form-field appearance="outline"><mat-label>Pesquisar contratos</mat-label>

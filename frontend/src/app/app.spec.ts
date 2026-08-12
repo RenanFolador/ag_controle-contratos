@@ -8,6 +8,7 @@ const authStub = {
   userName: 'test-user',
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
+  hasAnyRole: () => true,
 };
 
 describe('App', () => {

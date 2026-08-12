@@ -11,12 +11,14 @@ import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { Person } from '../../models/person';
 import { PersonService } from '../../services/person.service';
+import { PermissionService } from '../../../../core/auth/permission.service';
 
 @Component({ selector: 'app-person-list', imports: [ReactiveFormsModule, RouterLink,
   MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
   MatTableModule], templateUrl: './person-list.component.html', styleUrl: './person-list.component.scss' })
 export class PersonListComponent {
   private readonly service = inject(PersonService);
+  readonly permissions = inject(PermissionService);
   private readonly destroyRef = inject(DestroyRef);
   readonly search = new FormControl('', { nonNullable: true });
   readonly persons = signal<Person[]>([]);

@@ -29,7 +29,7 @@ class NotificationControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void delegatesNotificationFilters() throws Exception {
         mockMvc.perform(get("/api/v1/notifications")
                 .param("page", "1").param("size", "10")

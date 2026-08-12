@@ -17,6 +17,13 @@ export class AuthService {
     );
   }
 
+  hasAnyRole(...roles: string[]): boolean {
+    const realmAccess = this.keycloak.tokenParsed?.['realm_access'] as
+      | { roles?: string[] }
+      | undefined;
+    return roles.some((role) => realmAccess?.roles?.includes(role) === true);
+  }
+
   login(returnUrl = window.location.href): Promise<void> {
     return this.keycloak.login({ redirectUri: returnUrl });
   }

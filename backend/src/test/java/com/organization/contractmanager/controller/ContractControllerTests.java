@@ -18,6 +18,7 @@ import com.organization.contractmanager.exception.ContractNotFoundException;
 import com.organization.contractmanager.exception.DuplicateContractNumberException;
 import com.organization.contractmanager.security.SecurityConfig;
 import com.organization.contractmanager.service.ContractService;
+import com.organization.contractmanager.security.ContractAccessPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,6 +42,8 @@ class ContractControllerTests {
 
     @MockitoBean
     private ContractService service;
+    @MockitoBean
+    private ContractAccessPolicy accessPolicy;
 
     @Test
     void rejectsUnauthenticatedRequest() throws Exception {
@@ -49,7 +52,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void createsContract() throws Exception {
         UUID id = UUID.randomUUID();
         when(service.create(any())).thenReturn(response(id, ContractStatus.ACTIVE));
@@ -64,7 +67,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void validatesRequiredFields() throws Exception {
         mockMvc.perform(post("/api/v1/contracts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -79,7 +82,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsNotFound() throws Exception {
         UUID id = UUID.randomUUID();
         when(service.findById(id)).thenThrow(new ContractNotFoundException(id));
@@ -90,7 +93,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsConflictForDuplicateNumber() throws Exception {
         when(service.create(any())).thenThrow(new DuplicateContractNumberException("025/2026"));
 
@@ -102,7 +105,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void closesContractByDelegatingToService() throws Exception {
         UUID id = UUID.randomUUID();
         when(service.close(id)).thenReturn(response(id, ContractStatus.CLOSED));
@@ -114,7 +117,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returnsContractHistory() throws Exception {
         UUID contractId = UUID.randomUUID();
         UUID historyId = UUID.randomUUID();
@@ -132,9 +135,10 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void delegatesPaginationAndFilters() throws Exception {
         UUID personId = UUID.randomUUID();
+        when(accessPolicy.restrictPersonFilter(personId)).thenReturn(personId);
         when(service.findAll(
                 1, 10, "endDate,desc", "empresa", ContractStatus.ACTIVE,
                 2026, personId, 30))
@@ -155,7 +159,7 @@ class ContractControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void rejectsInvalidPagination() throws Exception {
         mockMvc.perform(get("/api/v1/contracts").param("size", "101"))
                 .andExpect(status().isBadRequest());

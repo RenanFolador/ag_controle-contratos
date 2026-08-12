@@ -18,6 +18,8 @@ public interface ContractAssignmentRepository extends JpaRepository<ContractAssi
 
     Optional<ContractAssignment> findByIdAndContractId(UUID id, UUID contractId);
 
+    boolean existsByContractIdAndPersonId(UUID contractId, UUID personId);
+
     @Query("select assignment from ContractAssignment assignment "
             + "join fetch assignment.person person "
             + "where assignment.contract.id = :contractId "

@@ -1,5 +1,5 @@
 <header><div><h1>Pessoas</h1><p>Gerencie gestores e fiscais vinculáveis aos contratos.</p></div>
-  <a mat-flat-button color="primary" routerLink="/persons/new"><mat-icon>person_add</mat-icon>Nova pessoa</a></header>
+  @if (permissions.canManagePersons()) { <a mat-flat-button color="primary" routerLink="/persons/new"><mat-icon>person_add</mat-icon>Nova pessoa</a> }</header>
 <mat-card><mat-card-content>
   <mat-form-field appearance="outline"><mat-label>Pesquisar por nome</mat-label><mat-icon matPrefix>search</mat-icon><input matInput [formControl]="search" /></mat-form-field>
   <div class="table-container"><table mat-table [dataSource]="persons()">

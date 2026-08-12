@@ -3,6 +3,7 @@ package com.organization.contractmanager.security;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.organization.contractmanager.controller.DashboardController;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -37,9 +39,32 @@ class ResourceServerSecurityTests {
                 .thenReturn(new DashboardResponse(0, 0, 0, 0, 0, 0));
 
         mockMvc.perform(get("/api/v1/dashboard").with(jwt()
+                        .authorities(new SimpleGrantedAuthority("ROLE_VIEWER"))
                         .jwt(token -> token.issuer("http://keycloak/realms/contracts")
-                                .subject("manager"))))
+                                .subject("viewer")
+                                .claim("realm_access", java.util.Map.of(
+                                        "roles", java.util.List.of("VIEWER"))))))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void rejectsInspectorFromGlobalDashboard() throws Exception {
+        mockMvc.perform(get("/api/v1/dashboard").with(jwt()
+                        .authorities(new SimpleGrantedAuthority("ROLE_INSPECTOR"))
+                        .jwt(token -> token
+                        .claim("realm_access", java.util.Map.of(
+                                "roles", java.util.List.of("INSPECTOR"))))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void viewerCannotCreateContracts() throws Exception {
+        mockMvc.perform(post("/api/v1/contracts").with(jwt()
+                        .authorities(new SimpleGrantedAuthority("ROLE_VIEWER"))
+                        .jwt(token -> token
+                        .claim("realm_access", java.util.Map.of(
+                                "roles", java.util.List.of("VIEWER"))))))
+                .andExpect(status().isForbidden());
     }
 
     @Test

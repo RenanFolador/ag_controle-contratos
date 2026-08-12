@@ -70,6 +70,12 @@ habilitado e aceitar as URLs de redirect e web origins do frontend. Os tokens
 permanecem somente em memória, as chamadas para o backend recebem o bearer token
 automaticamente e as rotas da aplicação exigem login.
 
+Os papéis de realm reconhecidos são `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e
+`VIEWER`. Configure no Keycloak um protocol mapper que inclua no access token o
+claim `person_id` com o UUID da `Person` vinculada ao usuário `INSPECTOR`. O
+backend exige esse claim e restringe as consultas do inspetor aos contratos em
+que essa pessoa possui vínculo; controles visuais do Angular são apenas UX.
+
 Com o banco saudável, execute a aplicação:
 
 ```bash

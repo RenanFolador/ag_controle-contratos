@@ -8,6 +8,7 @@ import com.organization.contractmanager.dto.PageResponse;
 import com.organization.contractmanager.dto.ContractHistoryResponse;
 import com.organization.contractmanager.domain.ContractStatus;
 import com.organization.contractmanager.service.ContractService;
+import com.organization.contractmanager.security.ContractAccessPolicy;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -31,9 +32,11 @@ import jakarta.validation.constraints.Min;
 public class ContractController {
 
     private final ContractService service;
+    private final ContractAccessPolicy accessPolicy;
 
-    public ContractController(ContractService service) {
+    public ContractController(ContractService service, ContractAccessPolicy accessPolicy) {
         this.service = service;
+        this.accessPolicy = accessPolicy;
     }
 
     @PostMapping
@@ -53,16 +56,19 @@ public class ContractController {
             @RequestParam(required = false) UUID personId,
             @RequestParam(required = false) @Min(0) Integer expirationDays) {
         return service.findAll(
-                page, size, sort, search, status, year, personId, expirationDays);
+                page, size, sort, search, status, year,
+                accessPolicy.restrictPersonFilter(personId), expirationDays);
     }
 
     @GetMapping("/{id}")
     public ContractResponse findById(@PathVariable UUID id) {
+        accessPolicy.checkContract(id);
         return service.findById(id);
     }
 
     @GetMapping("/{id}/history")
     public List<ContractHistoryResponse> history(@PathVariable UUID id) {
+        accessPolicy.checkContract(id);
         return service.findHistory(id);
     }
 

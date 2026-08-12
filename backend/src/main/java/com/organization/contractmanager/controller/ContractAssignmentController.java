@@ -4,6 +4,7 @@ import com.organization.contractmanager.dto.ContractAssignmentCreateRequest;
 import com.organization.contractmanager.dto.ContractAssignmentResponse;
 import com.organization.contractmanager.dto.ContractAssignmentUpdateRequest;
 import com.organization.contractmanager.service.ContractAssignmentService;
+import com.organization.contractmanager.security.ContractAccessPolicy;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
@@ -26,13 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class ContractAssignmentController {
 
     private final ContractAssignmentService service;
+    private final ContractAccessPolicy accessPolicy;
 
-    public ContractAssignmentController(ContractAssignmentService service) {
+    public ContractAssignmentController(
+            ContractAssignmentService service, ContractAccessPolicy accessPolicy) {
         this.service = service;
+        this.accessPolicy = accessPolicy;
     }
 
     @GetMapping
     public List<ContractAssignmentResponse> findAll(@PathVariable UUID contractId) {
+        accessPolicy.checkContract(contractId);
         return service.findByContract(contractId);
     }
 

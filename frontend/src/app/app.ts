@@ -11,6 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from './core/auth/auth.service';
+import { PermissionService } from './core/auth/permission.service';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,7 @@ export class App {
 
   private readonly breakpointObserver = inject(BreakpointObserver);
   protected readonly auth = inject(AuthService);
+  protected readonly permissions = inject(PermissionService);
   protected readonly isHandset = toSignal(
     this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches)),
     { initialValue: false },
