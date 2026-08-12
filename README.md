@@ -60,6 +60,7 @@ Principais variáveis:
 - CORS: `CORS_ALLOWED_ORIGINS` (lista separada por vírgulas; vazia por padrão)
 - scheduler: `NOTIFICATION_CRON`, `NOTIFICATION_BATCH_SIZE`
 - SMTP: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`
+  e `MAIL_HEALTH_ENABLED` (desabilitado no Compose enquanto não houver SMTP real)
 - WhatsApp: `WHATSAPP_ENABLED`, `WHATSAPP_API_URL`, `WHATSAPP_API_VERSION`,
   `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`
 
