@@ -1,0 +1,21 @@
+.shell { min-height: 100vh; }
+.navigation { width: 280px; padding: 1rem .75rem; }
+.brand { display: flex; align-items: center; gap: .75rem; padding: .75rem .5rem 1.25rem; }
+.brand mat-icon { width: 32px; height: 32px; font-size: 32px; }
+.brand div { display: flex; flex-direction: column; }
+.brand small { color: var(--mat-sys-on-surface-variant); margin-top: .15rem; }
+mat-nav-list { display: grid; gap: .25rem; margin-top: .75rem; }
+.contracts-menu { background: transparent; }
+.contracts-menu mat-panel-title { align-items: center; gap: 1rem; }
+.contracts-menu a { padding-left: 3.5rem; }
+.active { background: var(--mat-sys-secondary-container); color: var(--mat-sys-on-secondary-container); border-radius: 2rem; }
+.toolbar { position: sticky; top: 0; z-index: 10; }
+.toolbar-spacer { flex: 1; }
+.environment-label { font-size: .8rem; font-weight: 400; opacity: .8; }
+main { box-sizing: border-box; min-height: calc(100vh - 64px); padding: 1.5rem; }
+
+@media (max-width: 599px) {
+  .navigation { width: min(84vw, 300px); }
+  .environment-label { display: none; }
+  main { min-height: calc(100vh - 56px); padding: 1rem; }
+}
