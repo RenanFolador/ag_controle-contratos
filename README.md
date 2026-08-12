@@ -83,6 +83,12 @@ cd backend
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
+### Testes de integração PostgreSQL
+
+A suíte Maven inclui um fluxo de integração com PostgreSQL 16 real via
+Testcontainers. Com Docker em execução, use `mvn test`; o container é temporário,
+recebe todas as migrations Flyway e é removido automaticamente ao final.
+
 O Flyway é executado automaticamente durante a inicialização e mantém seu histórico no PostgreSQL. Ainda não há migrations SQL porque esta etapa não requer extensões, schemas adicionais ou tabelas de negócio; migrations vazias não são criadas.
 
 Para validar e empacotar o backend:
