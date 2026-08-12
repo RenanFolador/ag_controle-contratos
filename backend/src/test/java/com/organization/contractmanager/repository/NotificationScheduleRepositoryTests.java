@@ -62,18 +62,27 @@ class NotificationScheduleRepositoryTests {
                 new NotificationSchedule(contract, today.plusDays(30), 30, today));
         scheduleRepository.saveAndFlush(
                 new NotificationSchedule(contract, today.plusDays(61), 60, today.plusDays(1)));
+        Contract suspended = contractRepository.saveAndFlush(
+                contract("SCHEDULE-SUSPENDED", ContractStatus.SUSPENDED));
+        scheduleRepository.saveAndFlush(
+                new NotificationSchedule(suspended, today.plusDays(15), 15, today));
 
         var due = scheduleRepository.findDueSchedules(
-                NotificationScheduleStatus.PENDING, today);
+                NotificationScheduleStatus.PENDING, today,
+                org.springframework.data.domain.PageRequest.of(0, 100));
 
         assertThat(due).extracting(NotificationSchedule::getId)
                 .containsExactly(overdue.getId(), dueToday.getId());
     }
 
     private Contract contract(String number) {
+        return contract(number, ContractStatus.ACTIVE);
+    }
+
+    private Contract contract(String number, ContractStatus status) {
         return new Contract(
                 number, "PROC", "Objeto", "Empresa", null,
                 LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31),
-                new BigDecimal("100.00"), ContractStatus.ACTIVE, null, "test");
+                new BigDecimal("100.00"), status, null, "test");
     }
 }

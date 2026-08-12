@@ -68,8 +68,13 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+application:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
 notification:
   cron: ${NOTIFICATION_CRON:0 0 8 * * *}
+  batch-size: ${NOTIFICATION_BATCH_SIZE:100}
   mail:
     from: ${MAIL_FROM:}
   whatsapp:

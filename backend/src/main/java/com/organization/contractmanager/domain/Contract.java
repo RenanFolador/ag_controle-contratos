@@ -26,6 +26,7 @@ import java.util.UUID;
         indexes = {
             @Index(name = "idx_contracts_end_date", columnList = "end_date"),
             @Index(name = "idx_contracts_status", columnList = "status"),
+            @Index(name = "idx_contracts_status_end_date", columnList = "status, end_date"),
             @Index(name = "idx_contracts_company_name", columnList = "company_name")
         })
 public class Contract {

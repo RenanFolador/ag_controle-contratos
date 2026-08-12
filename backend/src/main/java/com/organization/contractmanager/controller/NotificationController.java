@@ -7,6 +7,7 @@ import com.organization.contractmanager.dto.PageResponse;
 import com.organization.contractmanager.service.NotificationService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
@@ -28,7 +29,7 @@ public class NotificationController {
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
             @RequestParam(required = false) NotificationStatus status,
             @RequestParam(required = false) NotificationChannel channel,
-            @RequestParam(required = false) String contract,
+            @RequestParam(required = false) @Size(max = 255) String contract,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return service.findAll(page, size, status, channel, contract, date);

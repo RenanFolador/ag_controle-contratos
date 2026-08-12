@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/api/v1/persons")
+@Validated
 public class PersonController {
 
     private final PersonService service;
@@ -35,7 +38,8 @@ public class PersonController {
     }
 
     @GetMapping
-    public List<PersonResponse> findAll(@RequestParam(required = false) String name) {
+    public List<PersonResponse> findAll(
+            @RequestParam(required = false) @Size(max = 255) String name) {
         return service.findAll(name);
     }
 

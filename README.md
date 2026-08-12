@@ -1,126 +1,105 @@
 # Sistema de Gestão de Contratos
 
-Aplicação para centralizar o cadastro e o acompanhamento de contratos, responsáveis, vigências e notificações de vencimento.
+MVP para cadastro e acompanhamento de contratos, responsáveis, vigências,
+notificações de vencimento, auditoria, dashboard e relatórios.
 
-## Estado atual
+## Funcionalidades do MVP
 
-O backend Spring Boot está inicializado com sua infraestrutura técnica e sem entidades ou funcionalidades de negócio. O frontend ainda não foi inicializado.
+- CRUD de contratos e pessoas, com encerramento/cancelamento e desativação lógica.
+- Vínculos históricos de gestores, fiscais titulares e substitutos.
+- Pesquisa, paginação, ordenação e filtros de contratos executados no banco.
+- Prazos de notificação configuráveis e schedules recalculados ao alterar a vigência.
+- Scheduler diário com recuperação de avisos atrasados e proteção contra execução
+  concorrente por lock pessimista no PostgreSQL.
+- Notificações por e-mail e, opcionalmente, WhatsApp Cloud API.
+- Histórico das principais alterações e entregas de notificação.
+- Dashboard com contagens agregadas.
+- Relatórios CSV de contratos e notificações; arquitetura preparada para XLSX/PDF.
+- Autenticação OIDC/PKCE no Angular e OAuth2 Resource Server JWT no backend.
+- Papéis `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e `VIEWER`.
 
-## Arquitetura planejada
+## Arquitetura
 
-- `backend/`: API REST em Java 21 com Spring Boot e Maven, persistência PostgreSQL, migrations Flyway e autenticação OAuth2/JWT via Keycloak.
-- `frontend/`: aplicação Angular com TypeScript, Angular Material, Reactive Forms e Angular Router.
-- `docker/`: arquivos auxiliares de infraestrutura e containers.
-- PostgreSQL: armazenamento transacional de contratos, pessoas, vínculos, notificações e auditoria.
-- Keycloak: autenticação e autorização baseada em papéis.
+- `backend/`: Java 21, Spring Boot, Maven, JPA, Flyway e PostgreSQL.
+- `frontend/`: Angular, TypeScript, Angular Material e Reactive Forms.
+- `docker/`: importação local do realm Keycloak.
+- `docker-compose.yml`: PostgreSQL, Keycloak, backend e frontend.
 
-A solução será organizada em camadas, mantendo controllers responsáveis pelo protocolo HTTP, services pelas regras de negócio e repositories pela persistência. Alterações no banco serão versionadas exclusivamente por migrations.
+Controllers tratam HTTP, services concentram regras de negócio e repositories
+executam a persistência. O schema é alterado exclusivamente por migrations Flyway.
 
-## Estrutura
+## Execução local com Docker
 
-```text
-.
-├── backend/
-├── frontend/
-├── docker/
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
-Os diretórios vazios são preservados por arquivos `.gitkeep` até a inicialização das aplicações.
-
-## Configuração local
-
-Copie `.env.example` para `.env` e substitua os valores de exemplo somente no ambiente local. O arquivo `.env` é ignorado pelo Git e não deve conter credenciais destinadas ao versionamento.
-
-### Backend
-
-Pré-requisitos: Java 21, Maven 3.6.3 ou superior e Docker com Docker Compose.
-
-Crie o arquivo local de ambiente e ajuste os valores se necessário:
+Pré-requisito: Docker com Docker Compose.
 
 ```bash
 cp .env.example .env
-```
-
-No PowerShell, o comando equivalente é `Copy-Item .env.example .env`.
-
-### Ambiente completo com Docker Compose
-
-Com Docker em execução, suba PostgreSQL, Keycloak, backend e frontend a partir
-da raiz do repositório:
-
-```bash
 docker compose up --build
 ```
 
-Em segundo plano, use `docker compose up --build -d`. A aplicação fica em
-`http://localhost:4200`, a API em `http://localhost:8080` e o Keycloak em
-`http://localhost:8081`. O realm `contract-manager`, o cliente público e os
-papéis iniciais são importados automaticamente; nenhum usuário é criado.
+No PowerShell, use `Copy-Item .env.example .env`. Serviços padrão:
 
-Os volumes `postgres_data` e `keycloak_data` preservam os dados. Para parar sem
-removê-los, execute `docker compose down`. Use `docker compose down -v` somente
-quando quiser apagar deliberadamente todos os dados locais.
+- frontend: `http://localhost:4200`
+- backend: `http://localhost:8080`
+- Keycloak: `http://localhost:8081`
+- health: `http://localhost:8080/actuator/health`
 
-Os valores do `.env.example` são apenas placeholders de desenvolvimento. Copie
-o arquivo para `.env` e substitua senhas e endereços antes de qualquer ambiente
-compartilhado. O modo `start-dev` do Keycloak não deve ser usado em produção.
+O realm, cliente público e papéis são importados; nenhum usuário é criado. Os
+volumes `postgres_data` e `keycloak_data` preservam dados. `docker compose down`
+mantém os volumes; `docker compose down -v` os remove definitivamente.
 
-Inicie somente o PostgreSQL de desenvolvimento, a partir da raiz do repositório:
+Os valores do `.env.example` são placeholders. Nunca reutilize as senhas locais
+em ambiente compartilhado ou de produção.
 
-```bash
-docker compose up -d postgres
-docker compose ps
-```
+## Configuração
 
-O volume nomeado `postgres_data` preserva os dados entre reinicializações. Para interromper o serviço sem apagar o volume, execute `docker compose stop postgres`.
+Principais variáveis:
 
-As configurações de conexão são fornecidas exclusivamente pelas variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME` e `DB_PASSWORD`. Os valores presentes em `.env.example` são apenas exemplos para desenvolvimento local.
+- banco: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`
+- autenticação: `KEYCLOAK_ISSUER_URI`
+- CORS: `CORS_ALLOWED_ORIGINS` (lista separada por vírgulas; vazia por padrão)
+- scheduler: `NOTIFICATION_CRON`, `NOTIFICATION_BATCH_SIZE`
+- SMTP: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`
+- WhatsApp: `WHATSAPP_ENABLED`, `WHATSAPP_API_URL`, `WHATSAPP_API_VERSION`,
+  `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`
 
-O backend atua como OAuth2 Resource Server e valida a assinatura, o emissor e a
-validade dos JWTs emitidos pelo Keycloak. Configure `KEYCLOAK_ISSUER_URI` com a URL
-exata do realm, por exemplo `http://localhost:8081/realms/contract-manager`.
-Todas as rotas `/api/v1/**` exigem um bearer token válido. Permanecem públicos
-somente o health/info do Actuator e a documentação OpenAPI.
+O timezone de negócio para vencimentos, dashboard, relatórios e scheduler é
+`America/Sao_Paulo`. Timestamps persistidos usam `TIMESTAMP WITH TIME ZONE` e
+`Instant`. Em desenvolvimento, CORS aceita apenas as origens locais configuradas;
+em produção, informe explicitamente a origem HTTPS do frontend.
 
-O frontend utiliza Authorization Code Flow com PKCE pelo adaptador oficial do
-Keycloak. Configure `url`, `realm` e `clientId` nos arquivos em
-`frontend/src/environments`. O cliente deve ser público, ter Standard Flow
-habilitado e aceitar as URLs de redirect e web origins do frontend. Os tokens
-permanecem somente em memória, as chamadas para o backend recebem o bearer token
-automaticamente e as rotas da aplicação exigem login.
+O WhatsApp fica desabilitado por padrão. IDs, status e códigos sanitizados do
+provider podem aparecer nos logs; tokens e respostas brutas não são registrados.
 
-Os papéis de realm reconhecidos são `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e
-`VIEWER`. Configure no Keycloak um protocol mapper que inclua no access token o
-claim `person_id` com o UUID da `Person` vinculada ao usuário `INSPECTOR`. O
-backend exige esse claim e restringe as consultas do inspetor aos contratos em
-que essa pessoa possui vínculo; controles visuais do Angular são apenas UX.
+## Autenticação e autorização
 
-O envio por WhatsApp usa a API oficial WhatsApp Cloud da Meta e permanece
-desabilitado por padrão. Para ativá-lo, configure `WHATSAPP_ENABLED=true`,
-`WHATSAPP_PHONE_NUMBER_ID` e `WHATSAPP_ACCESS_TOKEN`. A URL e a versão da Graph
-API podem ser ajustadas por `WHATSAPP_API_URL` e `WHATSAPP_API_VERSION`. IDs e
-status retornados pelo provider são registrados nos logs; tokens e respostas
-brutas nunca são registrados.
+Todas as rotas `/api/v1/**` exigem JWT válido do Keycloak. O backend é a autoridade
+final; controles visuais do Angular são apenas UX. Permanecem públicos somente
+`/actuator/health`, `/actuator/info` e a documentação OpenAPI.
 
-Com o banco saudável, execute a aplicação:
+- `ADMIN`: acesso completo e administração de prazos.
+- `CONTRACT_MANAGER`: contratos, responsáveis, notificações e relatórios.
+- `INSPECTOR`: contratos vinculados à pessoa indicada pelo claim UUID `person_id`.
+- `VIEWER`: consultas permitidas, sem mutações.
+
+O frontend usa Authorization Code Flow com PKCE e mantém tokens apenas em memória.
+
+## Execução sem Docker
+
+Pré-requisitos: Java 21, Maven, Node.js 22+, npm e PostgreSQL.
 
 ```bash
 cd backend
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-### Testes de integração PostgreSQL
+```bash
+cd frontend
+npm ci
+npm start
+```
 
-A suíte Maven inclui um fluxo de integração com PostgreSQL 16 real via
-Testcontainers. Com Docker em execução, use `mvn test`; o container é temporário,
-recebe todas as migrations Flyway e é removido automaticamente ao final.
-
-O Flyway é executado automaticamente durante a inicialização e mantém seu histórico no PostgreSQL. Ainda não há migrations SQL porque esta etapa não requer extensões, schemas adicionais ou tabelas de negócio; migrations vazias não são criadas.
-
-Para validar e empacotar o backend:
+## Testes e builds
 
 ```bash
 cd backend
@@ -128,14 +107,41 @@ mvn test
 mvn package
 ```
 
-O endpoint técnico público fica disponível em `GET /actuator/health`. A documentação OpenAPI pode ser consultada em `/v3/api-docs` e `/swagger-ui.html`.
+A suíte backend inclui integração com PostgreSQL real via Testcontainers quando
+Docker está disponível.
 
-O Actuator expõe publicamente somente `/actuator/health` e `/actuator/info`; o
-health não revela componentes nem detalhes internos. Os logs operacionais
-registram o ciclo do scheduler, quantidades e identificadores técnicos de
-schedules/notificações. Senhas, JWTs completos, tokens de API, destinatários e
-conteúdo de credenciais não devem ser incluídos nos logs.
+```bash
+cd frontend
+npm test -- --watch=false
+npm run build
+```
 
-## Próximas etapas
+```bash
+docker compose build
+```
 
-As próximas etapas inicializarão separadamente o backend Spring Boot, o banco PostgreSQL e o frontend Angular. As instruções de execução e testes serão acrescentadas conforme cada componente for criado.
+## Operação e segurança
+
+- Flyway valida e aplica oito migrations; `ddl-auto=validate` impede criação
+  implícita de tabelas.
+- Constraints únicas protegem número do contrato, CPF informado, prazos,
+  schedules e notificações por contrato/pessoa/vigência/prazo/canal.
+- O scheduler busca `PENDING` com `scheduledDate <= hoje`, em lotes configuráveis,
+  e usa lock pessimista para impedir processamento simultâneo entre instâncias.
+- Actuator expõe somente `health` e `info`, sem detalhes internos.
+- Erros inesperados são registrados por tipo e caminho; respostas ao cliente não
+  incluem stack trace, SQL, tokens ou mensagens internas.
+- Logs não devem conter senhas, JWTs completos, tokens de API ou destinatários.
+
+## Limitações conhecidas do MVP
+
+- Não há retentativa automática de notificações falhas nem fila externa.
+- Envio SMTP/WhatsApp depende de providers e credenciais externos.
+- XLSX e PDF ainda não possuem exporters; somente CSV está habilitado.
+- O Keycloak do Compose usa `start-dev` e não é configuração de produção.
+- A listagem de pessoas ainda não é paginada.
+- O processamento mantém transação/lock durante a chamada ao provider; para alto
+  volume, recomenda-se outbox/fila e workers independentes.
+- Não há alta disponibilidade, backup ou observabilidade distribuída prontos.
+
+Consulte [CHANGELOG.md](CHANGELOG.md) para o conteúdo da primeira versão do MVP.

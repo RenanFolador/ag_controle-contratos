@@ -179,7 +179,8 @@ class NotificationScheduleServiceTests {
         NotificationSchedule dueToday = new NotificationSchedule(
                 contract, TODAY.plusDays(30), 30, TODAY);
         when(scheduleRepository.findDueSchedules(
-                NotificationScheduleStatus.PENDING, TODAY))
+                org.mockito.ArgumentMatchers.eq(NotificationScheduleStatus.PENDING),
+                org.mockito.ArgumentMatchers.eq(TODAY), any()))
                 .thenReturn(List.of(overdue, dueToday));
 
         int processed = service.processDueSchedules();
@@ -191,6 +192,9 @@ class NotificationScheduleServiceTests {
                     Instant.parse("2026-08-12T12:00:00Z"));
         });
         verify(dispatcher, times(2)).dispatch(any(NotificationSchedule.class));
+        verify(scheduleRepository).findDueSchedules(
+                NotificationScheduleStatus.PENDING, TODAY,
+                org.springframework.data.domain.PageRequest.of(0, 100));
         verify(scheduleRepository).saveAll(List.of(overdue, dueToday));
     }
 
@@ -201,7 +205,8 @@ class NotificationScheduleServiceTests {
         NotificationSchedule cancelled = new NotificationSchedule(
                 contract(ContractStatus.CANCELLED, TODAY), TODAY, 15, TODAY);
         when(scheduleRepository.findDueSchedules(
-                NotificationScheduleStatus.PENDING, TODAY))
+                org.mockito.ArgumentMatchers.eq(NotificationScheduleStatus.PENDING),
+                org.mockito.ArgumentMatchers.eq(TODAY), any()))
                 .thenReturn(List.of(closed, cancelled));
 
         int processed = service.processDueSchedules();
@@ -217,7 +222,8 @@ class NotificationScheduleServiceTests {
         NotificationSchedule schedule = new NotificationSchedule(
                 contract(ContractStatus.ACTIVE, TODAY), TODAY, 15, TODAY);
         when(scheduleRepository.findDueSchedules(
-                NotificationScheduleStatus.PENDING, TODAY)).thenReturn(List.of(schedule));
+                org.mockito.ArgumentMatchers.eq(NotificationScheduleStatus.PENDING),
+                org.mockito.ArgumentMatchers.eq(TODAY), any())).thenReturn(List.of(schedule));
         org.mockito.Mockito.doThrow(new IllegalStateException("dispatch failure"))
                 .when(dispatcher).dispatch(schedule);
 

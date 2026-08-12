@@ -27,6 +27,8 @@ import java.util.UUID;
         indexes = {
             @Index(name = "idx_notifications_status_created_at",
                     columnList = "status, created_at"),
+            @Index(name = "idx_notifications_status_sent_at",
+                    columnList = "status, sent_at"),
             @Index(name = "idx_notifications_contract_id", columnList = "contract_id"),
             @Index(name = "idx_notifications_person_id", columnList = "person_id")
         })

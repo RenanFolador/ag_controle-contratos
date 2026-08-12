@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.domain.Pageable;
+import jakarta.persistence.LockModeType;
 
 public interface NotificationScheduleRepository
         extends JpaRepository<NotificationSchedule, UUID> {
@@ -25,14 +28,17 @@ public interface NotificationScheduleRepository
             @Param("contractId") UUID contractId,
             @Param("expirationDate") LocalDate expirationDate);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select schedule from NotificationSchedule schedule "
-            + "join fetch schedule.contract "
+            + "join fetch schedule.contract contract "
             + "where schedule.status = :status "
             + "and schedule.scheduledDate <= :today "
+            + "and contract.status <> com.organization.contractmanager.domain.ContractStatus.SUSPENDED "
             + "order by schedule.scheduledDate, schedule.id")
     List<NotificationSchedule> findDueSchedules(
             @Param("status") NotificationScheduleStatus status,
-            @Param("today") LocalDate today);
+            @Param("today") LocalDate today,
+            Pageable pageable);
 
     @Query("select schedule from NotificationSchedule schedule "
             + "where schedule.daysBefore = :daysBefore and schedule.status = :status")

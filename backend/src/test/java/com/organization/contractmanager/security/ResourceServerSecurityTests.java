@@ -4,11 +4,14 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.organization.contractmanager.controller.DashboardController;
 import com.organization.contractmanager.dto.DashboardResponse;
 import com.organization.contractmanager.service.DashboardService;
+import com.organization.contractmanager.config.CorsConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,8 +22,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(DashboardController.class)
-@Import(SecurityConfig.class)
+@WebMvcTest(value = DashboardController.class,
+        properties = "application.cors.allowed-origins=http://localhost:4200")
+@Import({SecurityConfig.class, CorsConfig.class})
 class ResourceServerSecurityTests {
 
     @Autowired private MockMvc mockMvc;
@@ -33,6 +37,26 @@ class ResourceServerSecurityTests {
                 .andExpect(status().isUnauthorized())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
                         .jsonPath("$.message").value("Sua sessão expirou ou não é válida."));
+    }
+
+    @Test
+    void allowsConfiguredCorsPreflightWithoutCredentials() throws Exception {
+        mockMvc.perform(options("/api/v1/dashboard")
+                        .header("Origin", "http://localhost:4200")
+                        .header("Access-Control-Request-Method", "GET")
+                        .header("Access-Control-Request-Headers", "Authorization"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin",
+                        "http://localhost:4200"))
+                .andExpect(header().doesNotExist("Access-Control-Allow-Credentials"));
+    }
+
+    @Test
+    void rejectsUnconfiguredCorsOrigin() throws Exception {
+        mockMvc.perform(options("/api/v1/dashboard")
+                        .header("Origin", "https://untrusted.example")
+                        .header("Access-Control-Request-Method", "GET"))
+                .andExpect(status().isForbidden());
     }
 
     @Test

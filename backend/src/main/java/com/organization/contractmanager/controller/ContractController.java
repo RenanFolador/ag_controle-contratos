@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/api/v1/contracts")
@@ -50,7 +51,7 @@ public class ContractController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = "contractNumber,asc") String sort,
-            @RequestParam(required = false) String search,
+            @RequestParam(required = false) @Size(max = 255) String search,
             @RequestParam(required = false) ContractStatus status,
             @RequestParam(required = false) @Min(1900) @Max(9999) Integer year,
             @RequestParam(required = false) UUID personId,
