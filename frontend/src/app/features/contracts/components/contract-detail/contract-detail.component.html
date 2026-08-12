@@ -9,4 +9,5 @@
     <div><dt>Valor inicial</dt><dd>{{ item.initialValue | currency:'BRL' }}</dd></div><div class="wide"><dt>Objeto</dt><dd>{{ item.object }}</dd></div>
     <div class="wide"><dt>Observações</dt><dd>{{ item.notes || '—' }}</dd></div>
   </dl></mat-card-content></mat-card>
+  <app-contract-assignments [contractId]="item.id" />
 }

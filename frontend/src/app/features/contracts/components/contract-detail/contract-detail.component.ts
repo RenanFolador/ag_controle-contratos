@@ -7,9 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Contract } from '../../models/contract';
 import { ContractService } from '../../services/contract.service';
+import { ContractAssignmentsComponent } from '../contract-assignments/contract-assignments.component';
 
 @Component({ selector: 'app-contract-detail', imports: [CurrencyPipe, DatePipe, RouterLink,
-  MatButtonModule, MatCardModule, MatIconModule], templateUrl: './contract-detail.component.html',
+  MatButtonModule, MatCardModule, MatIconModule, ContractAssignmentsComponent], templateUrl: './contract-detail.component.html',
   styleUrl: './contract-detail.component.scss' })
 export class ContractDetailComponent {
   private readonly service = inject(ContractService);
