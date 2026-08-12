@@ -46,6 +46,28 @@ cp .env.example .env
 
 No PowerShell, o comando equivalente é `Copy-Item .env.example .env`.
 
+### Ambiente completo com Docker Compose
+
+Com Docker em execução, suba PostgreSQL, Keycloak, backend e frontend a partir
+da raiz do repositório:
+
+```bash
+docker compose up --build
+```
+
+Em segundo plano, use `docker compose up --build -d`. A aplicação fica em
+`http://localhost:4200`, a API em `http://localhost:8080` e o Keycloak em
+`http://localhost:8081`. O realm `contract-manager`, o cliente público e os
+papéis iniciais são importados automaticamente; nenhum usuário é criado.
+
+Os volumes `postgres_data` e `keycloak_data` preservam os dados. Para parar sem
+removê-los, execute `docker compose down`. Use `docker compose down -v` somente
+quando quiser apagar deliberadamente todos os dados locais.
+
+Os valores do `.env.example` são apenas placeholders de desenvolvimento. Copie
+o arquivo para `.env` e substitua senhas e endereços antes de qualquer ambiente
+compartilhado. O modo `start-dev` do Keycloak não deve ser usado em produção.
+
 Inicie somente o PostgreSQL de desenvolvimento, a partir da raiz do repositório:
 
 ```bash

@@ -1,12 +1,11 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: contract-manager-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:-contract_manager}
       POSTGRES_USER: ${DB_USERNAME:-contract_manager}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me-local}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -15,8 +14,67 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-change-me-local}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "${KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./docker/keycloak/realm-contract-manager.json:/opt/keycloak/data/import/realm-contract-manager.json:ro
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-contract_manager}
+      DB_USERNAME: ${DB_USERNAME:-contract_manager}
+      DB_PASSWORD: ${DB_PASSWORD:-change-me-local}
+      KEYCLOAK_ISSUER_URI: http://localhost:${KEYCLOAK_PORT:-8081}/realms/${KEYCLOAK_REALM:-contract-manager}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/${KEYCLOAK_REALM:-contract-manager}/protocol/openid-connect/certs
+      NOTIFICATION_CRON: ${NOTIFICATION_CRON:-0 0 8 * * *}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-contracts@example.invalid}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        KEYCLOAK_URL: http://localhost:${KEYCLOAK_PORT:-8081}
+        KEYCLOAK_REALM: ${KEYCLOAK_REALM:-contract-manager}
+        KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-contract-manager-web}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4200}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 3s
       retries: 10
-      start_period: 10s
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
+  keycloak_data:
