@@ -7,6 +7,14 @@ import com.organization.contractmanager.domain.Person;
 import com.organization.contractmanager.domain.HistoryAction;
 import com.organization.contractmanager.repository.ContractAssignmentRepository;
 import com.organization.contractmanager.repository.NotificationRepository;
+import com.organization.contractmanager.dto.NotificationResponse;
+import com.organization.contractmanager.dto.PageResponse;
+import com.organization.contractmanager.domain.NotificationStatus;
+import java.time.LocalDate;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import static com.organization.contractmanager.repository.NotificationSpecifications.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,6 +36,20 @@ public class NotificationService {
     private final Map<NotificationChannel, NotificationProvider> providers;
     private final Clock clock;
     private final ContractHistoryService historyService;
+
+    @Transactional(readOnly = true)
+    public PageResponse<NotificationResponse> findAll(
+            int page, int size, NotificationStatus status,
+            NotificationChannel channel, String contract, LocalDate date) {
+        Specification<Notification> specification = Specification.allOf(
+                hasStatus(status), hasChannel(channel), contractContains(contract),
+                scheduledOn(date));
+        var result = notificationRepository.findAll(specification,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+        return new PageResponse<>(result.getContent().stream().map(this::toResponse).toList(),
+                result.getNumber(), result.getSize(), result.getTotalElements(),
+                result.getTotalPages(), result.isFirst(), result.isLast());
+    }
 
     @Autowired
     public NotificationService(
@@ -129,5 +151,18 @@ public class NotificationService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private NotificationResponse toResponse(Notification notification) {
+        return new NotificationResponse(
+                notification.getId(), notification.getContract().getId(),
+                notification.getContract().getContractNumber(),
+                notification.getContract().getCompanyName(),
+                notification.getPerson().getId(), notification.getRecipientName(),
+                notification.getRecipientAddress(), notification.getChannel(),
+                notification.getDaysBefore(), notification.getExpirationDate(),
+                notification.getScheduledDate(), notification.getStatus(),
+                notification.getSentAt(), notification.getErrorMessage(),
+                notification.getRetryCount(), notification.getCreatedAt());
     }
 }

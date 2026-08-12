@@ -1,0 +1,18 @@
+<header><h1>Notificações</h1><p>Consulte os avisos gerados e acompanhe eventuais falhas.</p></header>
+<mat-card class="filters"><mat-card-content><form [formGroup]="filters">
+  <mat-form-field appearance="outline"><mat-label>Status</mat-label><mat-select formControlName="status"><mat-option value="">Todos</mat-option>@for(status of statuses;track status){<mat-option [value]="status">{{status}}</mat-option>}</mat-select></mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>Canal</mat-label><mat-select formControlName="channel"><mat-option value="">Todos</mat-option>@for(channel of channels;track channel){<mat-option [value]="channel">{{channel}}</mat-option>}</mat-select></mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>Contrato ou empresa</mat-label><input matInput formControlName="contract" /></mat-form-field>
+  <mat-form-field appearance="outline"><mat-label>Data programada</mat-label><input matInput type="date" formControlName="date" /></mat-form-field>
+  <button mat-button type="button" (click)="clear()"><mat-icon>filter_alt_off</mat-icon>Limpar</button>
+</form></mat-card-content></mat-card>
+<mat-card><mat-card-content><div class="table-container"><table mat-table [dataSource]="notifications()">
+  <ng-container matColumnDef="contract"><th mat-header-cell *matHeaderCellDef>Contrato</th><td mat-cell *matCellDef="let item"><a [routerLink]="['/contracts',item.contractId]">{{item.contractNumber}}</a><small>{{item.companyName}}</small></td></ng-container>
+  <ng-container matColumnDef="recipient"><th mat-header-cell *matHeaderCellDef>Destinatário</th><td mat-cell *matCellDef="let item">{{item.recipientName}}<small>{{item.recipientAddress}}</small></td></ng-container>
+  <ng-container matColumnDef="channel"><th mat-header-cell *matHeaderCellDef>Canal</th><td mat-cell *matCellDef="let item">{{item.channel}}</td></ng-container>
+  <ng-container matColumnDef="deadline"><th mat-header-cell *matHeaderCellDef>Prazo</th><td mat-cell *matCellDef="let item">{{item.daysBefore}} dias</td></ng-container>
+  <ng-container matColumnDef="date"><th mat-header-cell *matHeaderCellDef>Data</th><td mat-cell *matCellDef="let item">{{item.scheduledDate|date:'dd/MM/yyyy':'UTC'}}</td></ng-container>
+  <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let item"><span [class.failed]="item.status==='FAILED'">{{item.status}}</span></td></ng-container>
+  <ng-container matColumnDef="error"><th mat-header-cell *matHeaderCellDef>Erro</th><td mat-cell *matCellDef="let item">@if(item.status==='FAILED'){<button mat-icon-button (click)="showFailure(item)" aria-label="Visualizar falha"><mat-icon>error_outline</mat-icon></button>}@else{—}</td></ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row;columns:displayedColumns" [class.failure-row]="row.status==='FAILED'"></tr>
+</table>@if(notifications().length===0){<p class="empty">Nenhuma notificação encontrada.</p>}</div><mat-paginator [length]="total()" [pageSize]="20" [pageSizeOptions]="[10,20,50]" (page)="pageChanged($event)" /></mat-card-content></mat-card>

@@ -12,7 +12,8 @@ export const routes: Routes = [
   { path: 'persons/:id/edit', loadComponent: () => import('./features/persons/components/person-form/person-form.component').then(m => m.PersonFormComponent) },
   { path: 'persons/:id', loadComponent: () => import('./features/persons/components/person-detail/person-detail.component').then(m => m.PersonDetailComponent) },
   { path: 'persons', loadComponent: () => import('./features/persons/components/person-list/person-list.component').then(m => m.PersonListComponent) },
-  { path: 'notifications', loadComponent: () => import('./features/notifications/notifications.page').then(m => m.NotificationsPage) },
+  { path: 'notificacoes', loadComponent: () => import('./features/notifications/components/notification-list/notification-list.component').then(m => m.NotificationListComponent) },
+  { path: 'notifications', redirectTo: 'notificacoes' },
   { path: 'administration', loadComponent: () => import('./features/administration/administration.page').then(m => m.AdministrationPage) },
   { path: '**', redirectTo: 'dashboard' }
 ];
