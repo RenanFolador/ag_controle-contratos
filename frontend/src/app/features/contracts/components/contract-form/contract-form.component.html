@@ -1,0 +1,15 @@
+<header><h1>{{ contractId ? 'Editar contrato' : 'Novo contrato' }}</h1><p>Informe os dados da vigência contratual.</p></header>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-card><mat-card-content><div class="grid">
+    <mat-form-field appearance="outline"><mat-label>Número do contrato</mat-label><input matInput formControlName="contractNumber" />@if (form.controls.contractNumber.hasError('required')) { <mat-error>Campo obrigatório</mat-error> }</mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Número do processo</mat-label><input matInput formControlName="processNumber" /></mat-form-field>
+    <mat-form-field appearance="outline" class="wide"><mat-label>Objeto</mat-label><textarea matInput rows="3" formControlName="object"></textarea>@if (form.controls.object.hasError('required')) { <mat-error>Campo obrigatório</mat-error> }</mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Empresa</mat-label><input matInput formControlName="companyName" />@if (form.controls.companyName.hasError('required')) { <mat-error>Campo obrigatório</mat-error> }</mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>CNPJ</mat-label><input matInput formControlName="companyCnpj" /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Data inicial</mat-label><input matInput type="date" formControlName="startDate" /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Data final</mat-label><input matInput type="date" formControlName="endDate" />@if (form.hasError('dateRange')) { <mat-error>A data final deve ser igual ou posterior à inicial</mat-error> }</mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Valor inicial</mat-label><input matInput type="number" min="0" step="0.01" formControlName="initialValue" /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Status</mat-label><mat-select formControlName="status">@for (status of statuses; track status) { <mat-option [value]="status">{{ status }}</mat-option> }</mat-select></mat-form-field>
+    <mat-form-field appearance="outline" class="wide"><mat-label>Observações</mat-label><textarea matInput rows="4" formControlName="notes"></textarea></mat-form-field>
+  </div></mat-card-content><mat-card-actions align="end"><a mat-button routerLink="/contracts">Cancelar</a><button mat-flat-button color="primary" type="submit" [disabled]="saving()">Salvar</button></mat-card-actions></mat-card>
+</form>
