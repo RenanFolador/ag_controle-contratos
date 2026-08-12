@@ -6,6 +6,8 @@ import com.organization.contractmanager.domain.NotificationSchedule;
 import com.organization.contractmanager.domain.NotificationScheduleStatus;
 import com.organization.contractmanager.repository.NotificationDeadlineRepository;
 import com.organization.contractmanager.repository.NotificationScheduleRepository;
+import com.organization.contractmanager.repository.ContractRepository;
+import com.organization.contractmanager.domain.NotificationDeadline;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Instant;
@@ -26,14 +28,16 @@ public class NotificationScheduleService {
     private final NotificationScheduleRepository scheduleRepository;
     private final Clock clock;
     private final NotificationDispatcher dispatcher;
+    private final ContractRepository contractRepository;
 
     @Autowired
     public NotificationScheduleService(
             NotificationDeadlineRepository deadlineRepository,
             NotificationScheduleRepository scheduleRepository,
-            NotificationDispatcher dispatcher) {
+            NotificationDispatcher dispatcher,
+            ContractRepository contractRepository) {
         this(deadlineRepository, scheduleRepository,
-                Clock.system(ZoneId.of("America/Sao_Paulo")), dispatcher);
+                Clock.system(ZoneId.of("America/Sao_Paulo")), dispatcher, contractRepository);
     }
 
     NotificationScheduleService(
@@ -48,10 +52,20 @@ public class NotificationScheduleService {
             NotificationScheduleRepository scheduleRepository,
             Clock clock,
             NotificationDispatcher dispatcher) {
+        this(deadlineRepository, scheduleRepository, clock, dispatcher, null);
+    }
+
+    NotificationScheduleService(
+            NotificationDeadlineRepository deadlineRepository,
+            NotificationScheduleRepository scheduleRepository,
+            Clock clock,
+            NotificationDispatcher dispatcher,
+            ContractRepository contractRepository) {
         this.deadlineRepository = deadlineRepository;
         this.scheduleRepository = scheduleRepository;
         this.clock = clock;
         this.dispatcher = dispatcher;
+        this.contractRepository = contractRepository;
     }
 
     @Transactional
@@ -86,6 +100,35 @@ public class NotificationScheduleService {
         scheduleRepository.saveAll(previousPending);
 
         return createForActiveContract(contract);
+    }
+
+    @Transactional
+    public List<NotificationSchedule> createFutureForDeadline(NotificationDeadline deadline) {
+        if (!deadline.isEnabled()) {
+            return List.of();
+        }
+        LocalDate today = LocalDate.now(clock);
+        List<NotificationSchedule> schedules = contractRepository
+                .findAllByStatus(ContractStatus.ACTIVE).stream()
+                .map(contract -> new NotificationSchedule(
+                        contract, contract.getEndDate(), deadline.getDaysBefore(),
+                        contract.getEndDate().minusDays(deadline.getDaysBefore())))
+                .filter(schedule -> !schedule.getScheduledDate().isBefore(today))
+                .filter(schedule -> !scheduleRepository
+                        .existsByContractIdAndExpirationDateAndDaysBefore(
+                                schedule.getContract().getId(), schedule.getExpirationDate(),
+                                schedule.getDaysBefore()))
+                .toList();
+        return scheduleRepository.saveAll(schedules);
+    }
+
+    @Transactional
+    public int cancelPendingForDeadline(int daysBefore) {
+        List<NotificationSchedule> pending = scheduleRepository
+                .findAllByDaysBeforeAndStatus(daysBefore, NotificationScheduleStatus.PENDING);
+        pending.forEach(NotificationSchedule::cancelIfPending);
+        scheduleRepository.saveAll(pending);
+        return pending.size();
     }
 
     @Transactional(readOnly = true)

@@ -1,7 +1,9 @@
 package com.organization.contractmanager.repository;
 
 import com.organization.contractmanager.domain.Contract;
+import com.organization.contractmanager.domain.ContractStatus;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -14,6 +16,8 @@ public interface ContractRepository extends JpaRepository<Contract, UUID>,
         JpaSpecificationExecutor<Contract> {
 
     Optional<Contract> findByContractNumber(String contractNumber);
+
+    List<Contract> findAllByStatus(ContractStatus status);
 
     boolean existsByContractNumber(String contractNumber);
 

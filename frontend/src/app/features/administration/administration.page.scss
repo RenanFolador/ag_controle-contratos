@@ -1,0 +1,42 @@
+header {
+  margin-bottom: 1rem;
+}
+header h1 {
+  margin-bottom: 0.25rem;
+}
+header p,
+.policy {
+  color: var(--mat-sys-on-surface-variant);
+}
+.form-card {
+  margin-bottom: 1rem;
+}
+form {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+mat-form-field {
+  min-width: 240px;
+}
+.table-container {
+  overflow: auto;
+}
+table {
+  width: 100%;
+}
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+}
+.policy {
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+@media (max-width: 599px) {
+  form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

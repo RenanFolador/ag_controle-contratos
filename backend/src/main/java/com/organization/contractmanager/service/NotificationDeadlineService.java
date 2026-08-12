@@ -14,9 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationDeadlineService {
 
     private final NotificationDeadlineRepository repository;
+    private final NotificationScheduleService scheduleService;
 
-    public NotificationDeadlineService(NotificationDeadlineRepository repository) {
+    public NotificationDeadlineService(
+            NotificationDeadlineRepository repository,
+            NotificationScheduleService scheduleService) {
         this.repository = repository;
+        this.scheduleService = scheduleService;
     }
 
     @Transactional(readOnly = true)
@@ -36,7 +40,12 @@ public class NotificationDeadlineService {
             throw new DuplicateNotificationDeadlineException(daysBefore);
         }
         try {
-            return repository.saveAndFlush(new NotificationDeadline(daysBefore, enabled));
+            NotificationDeadline saved = repository.saveAndFlush(
+                    new NotificationDeadline(daysBefore, enabled));
+            if (enabled) {
+                scheduleService.createFutureForDeadline(saved);
+            }
+            return saved;
         } catch (DataIntegrityViolationException exception) {
             throw new DuplicateNotificationDeadlineException(daysBefore);
         }
@@ -46,8 +55,25 @@ public class NotificationDeadlineService {
     public NotificationDeadline setEnabled(UUID id, boolean enabled) {
         NotificationDeadline deadline = repository.findById(id)
                 .orElseThrow(() -> new NotificationDeadlineNotFoundException(id));
+        if (deadline.isEnabled() == enabled) {
+            return deadline;
+        }
         deadline.setEnabled(enabled);
-        return repository.save(deadline);
+        NotificationDeadline saved = repository.save(deadline);
+        if (enabled) {
+            scheduleService.createFutureForDeadline(saved);
+        } else {
+            scheduleService.cancelPendingForDeadline(saved.getDaysBefore());
+        }
+        return saved;
+    }
+
+    @Transactional
+    public void remove(UUID id) {
+        NotificationDeadline deadline = repository.findById(id)
+                .orElseThrow(() -> new NotificationDeadlineNotFoundException(id));
+        scheduleService.cancelPendingForDeadline(deadline.getDaysBefore());
+        repository.delete(deadline);
     }
 
     private void validateDaysBefore(int daysBefore) {

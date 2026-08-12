@@ -1,0 +1,58 @@
+<header>
+  <h1>Administração</h1>
+  <p>Configure os prazos utilizados para gerar avisos de vencimento.</p>
+</header>
+<mat-card class="form-card"
+  ><mat-card-content
+    ><form (ngSubmit)="add()">
+      <mat-form-field appearance="outline"
+        ><mat-label>Dias antes do vencimento</mat-label
+        ><input matInput type="number" min="1" [formControl]="daysBefore" />
+        @if (daysBefore.hasError('required') || daysBefore.hasError('min')) {
+          <mat-error>Informe um prazo maior que zero.</mat-error>
+        }
+      </mat-form-field>
+      <mat-checkbox [formControl]="enabled">Criar habilitado</mat-checkbox>
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+        <mat-icon>add</mat-icon>{{ saving() ? 'Adicionando...' : 'Adicionar prazo' }}
+      </button>
+    </form></mat-card-content
+  ></mat-card
+>
+<mat-card
+  ><mat-card-content
+    ><div class="table-container">
+      <table mat-table [dataSource]="deadlines()">
+        <ng-container matColumnDef="daysBefore"
+          ><th mat-header-cell *matHeaderCellDef>Prazo</th>
+          <td mat-cell *matCellDef="let item">{{ item.daysBefore }} dias</td></ng-container
+        >
+        <ng-container matColumnDef="enabled"
+          ><th mat-header-cell *matHeaderCellDef>Habilitado</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-slide-toggle
+              [checked]="item.enabled"
+              (change)="toggle(item, $event.checked)"
+            /></td
+        ></ng-container>
+        <ng-container matColumnDef="actions"
+          ><th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button color="warn" (click)="remove(item)" aria-label="Remover prazo">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td></ng-container
+        >
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+      @if (!loading() && deadlines().length === 0) {
+        <p class="empty">Nenhum prazo configurado.</p>
+      }
+    </div></mat-card-content
+  ></mat-card
+>
+<p class="policy">
+  Alterações afetam apenas schedules pendentes e futuros. Notificações já processadas ou enviadas
+  são preservadas.
+</p>

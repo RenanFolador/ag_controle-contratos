@@ -13,14 +13,14 @@
     <mat-divider />
     <mat-nav-list>
       @if (permissions.canViewDashboard()) {
-      <a
-        mat-list-item
-        routerLink="/dashboard"
-        routerLinkActive="active"
-        (click)="closeNavigationOnHandset()"
-      >
-        <mat-icon matListItemIcon>dashboard</mat-icon><span matListItemTitle>Dashboard</span>
-      </a>
+        <a
+          mat-list-item
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+        >
+          <mat-icon matListItemIcon>dashboard</mat-icon><span matListItemTitle>Dashboard</span>
+        </a>
       }
 
       <mat-expansion-panel class="contracts-menu" [class.mat-elevation-z0]="true">
@@ -52,33 +52,36 @@
       </mat-expansion-panel>
 
       @if (permissions.canViewPersons()) {
-      <a
-        mat-list-item
-        routerLink="/persons"
-        routerLinkActive="active"
-        (click)="closeNavigationOnHandset()"
-      >
-        <mat-icon matListItemIcon>people</mat-icon><span matListItemTitle>Pessoas</span>
-      </a>
+        <a
+          mat-list-item
+          routerLink="/persons"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+        >
+          <mat-icon matListItemIcon>people</mat-icon><span matListItemTitle>Pessoas</span>
+        </a>
       }
       @if (permissions.canViewNotifications()) {
-      <a
-        mat-list-item
-        routerLink="/notificacoes"
-        routerLinkActive="active"
-        (click)="closeNavigationOnHandset()"
-      >
-        <mat-icon matListItemIcon>notifications</mat-icon><span matListItemTitle>Notificações</span>
-      </a>
+        <a
+          mat-list-item
+          routerLink="/notificacoes"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+        >
+          <mat-icon matListItemIcon>notifications</mat-icon
+          ><span matListItemTitle>Notificações</span>
+        </a>
       }
-      <a
-        mat-list-item
-        routerLink="/administration"
-        routerLinkActive="active"
-        (click)="closeNavigationOnHandset()"
-      >
-        <mat-icon matListItemIcon>settings</mat-icon><span matListItemTitle>Administração</span>
-      </a>
+      @if (permissions.canManageAdministration()) {
+        <a
+          mat-list-item
+          routerLink="/administration"
+          routerLinkActive="active"
+          (click)="closeNavigationOnHandset()"
+        >
+          <mat-icon matListItemIcon>settings</mat-icon><span matListItemTitle>Administração</span>
+        </a>
+      }
     </mat-nav-list>
   </mat-sidenav>
 

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import com.organization.contractmanager.domain.NotificationDeadline;
 import com.organization.contractmanager.exception.DuplicateNotificationDeadlineException;
@@ -23,12 +24,14 @@ class NotificationDeadlineServiceTests {
 
     @Mock
     private NotificationDeadlineRepository repository;
+    @Mock
+    private NotificationScheduleService scheduleService;
 
     private NotificationDeadlineService service;
 
     @BeforeEach
     void setUp() {
-        service = new NotificationDeadlineService(repository);
+        service = new NotificationDeadlineService(repository, scheduleService);
     }
 
     @Test
@@ -46,7 +49,9 @@ class NotificationDeadlineServiceTests {
         when(repository.existsByDaysBefore(45)).thenReturn(false);
         when(repository.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThat(service.create(45, true).getDaysBefore()).isEqualTo(45);
+        NotificationDeadline deadline = service.create(45, true);
+        assertThat(deadline.getDaysBefore()).isEqualTo(45);
+        verify(scheduleService).createFutureForDeadline(deadline);
     }
 
     @Test
@@ -70,5 +75,30 @@ class NotificationDeadlineServiceTests {
 
         assertThatThrownBy(() -> service.setEnabled(id, false))
                 .isInstanceOf(NotificationDeadlineNotFoundException.class);
+    }
+
+    @Test
+    void disablingCancelsOnlyPendingSchedulesForDeadline() {
+        UUID id = UUID.randomUUID();
+        NotificationDeadline deadline = new NotificationDeadline(30, true);
+        when(repository.findById(id)).thenReturn(Optional.of(deadline));
+        when(repository.save(deadline)).thenReturn(deadline);
+
+        service.setEnabled(id, false);
+
+        verify(scheduleService).cancelPendingForDeadline(30);
+        assertThat(deadline.isEnabled()).isFalse();
+    }
+
+    @Test
+    void removingCancelsPendingSchedulesAndDeletesConfiguration() {
+        UUID id = UUID.randomUUID();
+        NotificationDeadline deadline = new NotificationDeadline(7, true);
+        when(repository.findById(id)).thenReturn(Optional.of(deadline));
+
+        service.remove(id);
+
+        verify(scheduleService).cancelPendingForDeadline(7);
+        verify(repository).delete(deadline);
     }
 }

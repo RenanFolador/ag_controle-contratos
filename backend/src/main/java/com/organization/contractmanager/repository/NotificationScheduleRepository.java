@@ -34,6 +34,12 @@ public interface NotificationScheduleRepository
             @Param("status") NotificationScheduleStatus status,
             @Param("today") LocalDate today);
 
+    @Query("select schedule from NotificationSchedule schedule "
+            + "where schedule.daysBefore = :daysBefore and schedule.status = :status")
+    List<NotificationSchedule> findAllByDaysBeforeAndStatus(
+            @Param("daysBefore") int daysBefore,
+            @Param("status") NotificationScheduleStatus status);
+
     @Query("select (count(schedule) > 0) from NotificationSchedule schedule "
             + "where schedule.contract.id = :contractId "
             + "and schedule.expirationDate = :expirationDate "

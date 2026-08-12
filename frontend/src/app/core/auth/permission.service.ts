@@ -28,4 +28,8 @@ export class PermissionService {
   canViewDashboard(): boolean {
     return this.auth.hasAnyRole('ADMIN', 'CONTRACT_MANAGER', 'VIEWER');
   }
+
+  canManageAdministration(): boolean {
+    return this.auth.hasAnyRole('ADMIN');
+  }
 }
