@@ -98,6 +98,13 @@ claim `person_id` com o UUID da `Person` vinculada ao usuário `INSPECTOR`. O
 backend exige esse claim e restringe as consultas do inspetor aos contratos em
 que essa pessoa possui vínculo; controles visuais do Angular são apenas UX.
 
+O envio por WhatsApp usa a API oficial WhatsApp Cloud da Meta e permanece
+desabilitado por padrão. Para ativá-lo, configure `WHATSAPP_ENABLED=true`,
+`WHATSAPP_PHONE_NUMBER_ID` e `WHATSAPP_ACCESS_TOKEN`. A URL e a versão da Graph
+API podem ser ajustadas por `WHATSAPP_API_URL` e `WHATSAPP_API_VERSION`. IDs e
+status retornados pelo provider são registrados nos logs; tokens e respostas
+brutas nunca são registrados.
+
 Com o banco saudável, execute a aplicação:
 
 ```bash
