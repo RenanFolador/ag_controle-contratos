@@ -15,6 +15,11 @@ spring:
     clean-disabled: true
     validate-migration-naming: true
     locations: classpath:db/migration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
   mail:
     host: ${MAIL_HOST:}
     port: ${MAIL_PORT:587}

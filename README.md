@@ -57,6 +57,12 @@ O volume nomeado `postgres_data` preserva os dados entre reinicializações. Par
 
 As configurações de conexão são fornecidas exclusivamente pelas variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME` e `DB_PASSWORD`. Os valores presentes em `.env.example` são apenas exemplos para desenvolvimento local.
 
+O backend atua como OAuth2 Resource Server e valida a assinatura, o emissor e a
+validade dos JWTs emitidos pelo Keycloak. Configure `KEYCLOAK_ISSUER_URI` com a URL
+exata do realm, por exemplo `http://localhost:8081/realms/contract-manager`.
+Todas as rotas `/api/v1/**` exigem um bearer token válido. Permanecem públicos
+somente o health/info do Actuator e a documentação OpenAPI.
+
 Com o banco saudável, execute a aplicação:
 
 ```bash
