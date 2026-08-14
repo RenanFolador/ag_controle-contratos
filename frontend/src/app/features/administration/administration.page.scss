@@ -1,7 +1,11 @@
-header {
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
-header h1 {
+.page-header h1 {
   margin-bottom: 0.25rem;
 }
 header p,
@@ -35,6 +39,11 @@ table {
   margin-top: 1rem;
 }
 @media (max-width: 599px) {
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   form {
     align-items: stretch;
     flex-direction: column;

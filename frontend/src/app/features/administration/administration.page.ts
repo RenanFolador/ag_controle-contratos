@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { NotificationDeadline } from './notification-deadline';
 import { NotificationDeadlineService } from './notification-deadline.service';
 
@@ -24,6 +25,7 @@ import { NotificationDeadlineService } from './notification-deadline.service';
     MatInputModule,
     MatSlideToggleModule,
     MatTableModule,
+    RouterLink,
   ],
   templateUrl: './administration.page.html',
   styleUrl: './administration.page.scss',

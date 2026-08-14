@@ -17,6 +17,8 @@ notificações de vencimento, auditoria, dashboard e relatórios.
 - Relatórios CSV de contratos e notificações; arquitetura preparada para XLSX/PDF.
 - Autenticação OIDC/PKCE no Angular e OAuth2 Resource Server JWT no backend.
 - Papéis `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e `VIEWER`.
+- Administração de usuários Keycloak por ADMIN, com atribuição das quatro roles
+  da aplicação.
 
 ## Arquitetura
 
@@ -44,9 +46,11 @@ No PowerShell, use `Copy-Item .env.example .env`. Serviços padrão:
 - Keycloak: `http://localhost:8081`
 - health: `http://localhost:8080/actuator/health`
 
-O realm, cliente público e papéis são importados; nenhum usuário é criado. Os
-volumes `postgres_data` e `keycloak_data` preservam dados. `docker compose down`
-mantém os volumes; `docker compose down -v` os remove definitivamente.
+O realm, cliente público, cliente de administração e papéis são importados; nenhum
+usuário da aplicação é criado. O cliente de administração usa uma service account
+com permissões mínimas para consultar usuários e gerenciar roles. Os volumes
+`postgres_data` e `keycloak_data` preservam dados. `docker compose down` mantém os
+volumes; `docker compose down -v` os remove definitivamente.
 
 Os valores do `.env.example` são placeholders. Nunca reutilize as senhas locais
 em ambiente compartilhado ou de produção.
@@ -57,6 +61,9 @@ Principais variáveis:
 
 - banco: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`
 - autenticação: `KEYCLOAK_ISSUER_URI`
+- administração Keycloak: `KEYCLOAK_ADMIN_ENABLED`, `KEYCLOAK_ADMIN_BASE_URL`,
+  `KEYCLOAK_ADMIN_REALM`, `KEYCLOAK_ADMIN_CLIENT_ID`,
+  `KEYCLOAK_ADMIN_CLIENT_SECRET`
 - CORS: `CORS_ALLOWED_ORIGINS` (lista separada por vírgulas; vazia por padrão)
 - scheduler: `NOTIFICATION_CRON`, `NOTIFICATION_BATCH_SIZE`
 - SMTP: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`
@@ -84,6 +91,25 @@ final; controles visuais do Angular são apenas UX. Permanecem públicos somente
 - `VIEWER`: consultas permitidas, sem mutações.
 
 O frontend usa Authorization Code Flow com PKCE e mantém tokens apenas em memória.
+
+### Administração de usuários
+
+Administradores podem acessar `/administration/users` pelo menu Administração.
+A página consulta `/api/v1/admin/users` e atualiza roles com
+`PUT /api/v1/admin/users/{id}/roles`. Tanto a rota Angular quanto a API exigem
+ADMIN; o backend nunca confia somente no controle visual do frontend.
+
+O backend usa client credentials para acessar a API administrativa do Keycloak.
+No Compose, `KEYCLOAK_ADMIN_BASE_URL` é ajustada para a rede interna e as demais
+variáveis vêm do `.env`. O client importado precisa manter as roles de service
+account `manage-users`, `query-users`, `view-users` e `view-realm`; essas roles não
+são atribuídas aos usuários da aplicação. Se o volume antigo do Keycloak já tiver
+sido inicializado antes da inclusão desse client, configure-o manualmente no
+Keycloak ou inicialize um volume local novo.
+
+O endpoint altera somente `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e `VIEWER`,
+preserva outras roles internas do Keycloak e impede que um administrador remova a
+role ADMIN do próprio usuário pela aplicação.
 
 ## Execução sem Docker
 

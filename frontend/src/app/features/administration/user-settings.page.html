@@ -1,0 +1,111 @@
+<header class="page-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Configurações de usuários</h1>
+    <p>Consulte os usuários do Keycloak e atribua as roles de acesso da aplicação.</p>
+  </div>
+  <a mat-stroked-button routerLink="/administration">
+    <mat-icon>arrow_back</mat-icon>
+    Voltar
+  </a>
+</header>
+
+<mat-card class="filters">
+  <mat-card-content>
+    <form (ngSubmit)="refresh()">
+      <mat-form-field appearance="outline">
+        <mat-label>Pesquisar usuário</mat-label>
+        <input matInput [formControl]="search" placeholder="Nome, login ou e-mail" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <button mat-button type="button" (click)="clearSearch()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpar
+      </button>
+      <button mat-flat-button color="primary" type="submit">
+        <mat-icon>refresh</mat-icon>
+        Atualizar
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<mat-card [attr.aria-busy]="loading()">
+  <mat-card-header>
+    <mat-card-title>Usuários e permissões</mat-card-title>
+    <mat-card-subtitle>As alterações são aplicadas diretamente no Keycloak.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="table-container">
+      <table mat-table [dataSource]="users()">
+        <ng-container matColumnDef="user">
+          <th mat-header-cell *matHeaderCellDef>Usuário</th>
+          <td mat-cell *matCellDef="let user">
+            <strong>{{ displayName(user) }}</strong>
+            <small>{{ user.username }}</small>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>E-mail</th>
+          <td mat-cell *matCellDef="let user">{{ user.email || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="status" [class.disabled]="!user.enabled">
+              {{ user.enabled ? 'Ativo' : 'Desabilitado' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="roles">
+          <th mat-header-cell *matHeaderCellDef>Roles</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-form-field class="role-select" appearance="outline">
+              <mat-label>Roles de aplicação</mat-label>
+              <mat-select multiple [formControl]="rolesControl(user)">
+                @for (option of roleOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let user">
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              [disabled]="savingUserId() !== null"
+              (click)="save(user)"
+            >
+              <mat-icon>save</mat-icon>
+              {{ savingUserId() === user.id ? 'Salvando...' : 'Salvar' }}
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+      @if (!loading() && users().length === 0) {
+        <p class="empty">Nenhum usuário encontrado.</p>
+      }
+    </div>
+    <mat-paginator
+      [length]="total()"
+      [pageSize]="20"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="pageChanged($event)"
+    />
+  </mat-card-content>
+</mat-card>
+
+<p class="policy">
+  Somente as quatro roles da aplicação são alteradas. Roles internas do Keycloak são preservadas.
+</p>

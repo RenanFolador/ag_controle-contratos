@@ -126,6 +126,12 @@ O backend usa uma arquitetura em camadas dentro do package base
   stack trace, SQL ou detalhes internos ao cliente.
 - `SecurityConfig` valida JWT do Keycloak, converte `realm_access.roles` para
   authorities `ROLE_*` e aplica regras por método e rota.
+- `UserAdminController` e `UserAdminService` expõem administração paginada de
+  usuários e substituição das roles de aplicação, protegidas por ADMIN.
+- `KeycloakAdminRestClient` usa client credentials de uma service account para
+  consultar usuários e aplicar roles na API administrativa do Keycloak. A
+  integração é configurável e preserva roles internas que não pertencem à
+  aplicação.
 - `ContractAccessPolicy` limita inspetores aos contratos associados à pessoa
   identificada pelo claim JWT `person_id`.
 - `NotificationScheduler` usa `@Scheduled` com timezone
@@ -144,6 +150,7 @@ Principais rotas REST existentes:
 - `/api/v1/persons`: CRUD e pesquisa por nome; desativação é lógica via update.
 - `/api/v1/notifications`: consulta paginada e filtrada.
 - `/api/v1/admin/notification-deadlines`: administração de prazos para ADMIN.
+- `/api/v1/admin/users`: consulta de usuários e atribuição de roles para ADMIN.
 - `/api/v1/dashboard`: contagens agregadas.
 - `/api/v1/reports/export`: exportação CSV dos tipos de relatório suportados.
 - `/actuator/health`, `/actuator/info` e OpenAPI/Swagger são públicos; as APIs
@@ -166,7 +173,8 @@ Angular Material.
 - `features/persons`: lista, formulário e detalhe de pessoas.
 - `features/dashboard`: cards de métricas e contratos próximos do vencimento.
 - `features/notifications`: consulta paginada, filtros e diálogo de falha.
-- `features/administration`: CRUD de `NotificationDeadline`.
+- `features/administration`: CRUD de `NotificationDeadline` e página de
+  configurações de usuários/roles.
 - `features/reports`: filtros e download de CSV.
 - `shared`: componentes reutilizáveis, atualmente incluindo placeholder de
   feature.
@@ -174,8 +182,10 @@ Angular Material.
 Rotas principais do Angular: `/dashboard`, `/contracts`,
 `/contracts/new`, `/contracts/:id`, `/contracts/:id/edit`,
 `/contracts/expiring`, `/persons`, `/persons/new`, `/persons/:id`,
-`/persons/:id/edit`, `/notificacoes` (com alias `/notifications`), `/reports` e
-`/administration`. O conjunto de rotas é protegido pelo guard de autenticação.
+`/persons/:id/edit`, `/notificacoes` (com alias `/notifications`), `/reports`,
+`/administration` e `/administration/users`. As rotas de administração também
+usam um guard de role ADMIN; o conjunto de rotas é protegido pelo guard de
+autenticação.
 
 ## 5. Convenções de desenvolvimento
 
@@ -330,6 +340,11 @@ Git; somente placeholders de `.env.example` são versionados.
 - `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID` para o Angular/Compose.
 - `KEYCLOAK_ADMIN_USERNAME` e `KEYCLOAK_ADMIN_PASSWORD` para o bootstrap local
   do Keycloak; nunca usar valores locais de exemplo em ambiente compartilhado.
+- `KEYCLOAK_ADMIN_ENABLED`, `KEYCLOAK_ADMIN_BASE_URL`,
+  `KEYCLOAK_ADMIN_REALM`, `KEYCLOAK_ADMIN_CLIENT_ID` e
+  `KEYCLOAK_ADMIN_CLIENT_SECRET` habilitam a service account usada pela
+  administração de usuários. No Compose, a URL base é substituída pela URL
+  interna do serviço Keycloak.
 - O Compose também injeta `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI`
   para a comunicação interna com o Keycloak.
 
@@ -441,6 +456,8 @@ O MVP atualmente possui:
 - Histórico das principais alterações contratuais.
 - Relatórios CSV para contratos, responsáveis e notificações.
 - Autenticação OIDC/PKCE no Angular e autorização por roles no backend.
+- Configurações administrativas de usuários Keycloak, com atribuição de
+  `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e `VIEWER`.
 - Layout Angular responsivo com Angular Material, tratamento de erros e loading.
 
 Pontos em desenvolvimento ou deliberadamente limitados pelo MVP:
@@ -456,8 +473,13 @@ Pontos em desenvolvimento ou deliberadamente limitados pelo MVP:
 - O Compose usa Keycloak `start-dev` e credenciais de desenvolvimento fornecidas
   pelo ambiente; não é configuração de produção.
 - O realm versionado cria cliente público, PKCE, claim `person_id` e roles, mas
-  não cria usuários. Usuários e associação de `person_id` precisam ser criados
-  manualmente no Keycloak local.
+- também inclui um client confidencial de service account para a administração
+  de usuários. Usuários da aplicação e associação de `person_id` precisam ser
+  criados manualmente no Keycloak local.
+- A administração de usuários depende das credenciais de client credentials e
+  das roles `manage-users`, `query-users`, `view-users` e `view-realm` no
+  service account. O endpoint permanece indisponível com resposta sanitizada se
+  essa integração estiver desabilitada ou não configurada.
 - `application.yml` exige issuer JWT configurado; os profiles `dev` e `test`
   completam o cenário de desenvolvimento/teste.
 - O frontend Docker usa o mesmo host para API e Nginx proxy; o frontend local

@@ -43,6 +43,11 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-change-me-local}
       KEYCLOAK_ISSUER_URI: http://localhost:${KEYCLOAK_PORT:-8081}/realms/${KEYCLOAK_REALM:-contract-manager}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/${KEYCLOAK_REALM:-contract-manager}/protocol/openid-connect/certs
+      KEYCLOAK_ADMIN_ENABLED: ${KEYCLOAK_ADMIN_ENABLED:-true}
+      KEYCLOAK_ADMIN_BASE_URL: http://keycloak:8080
+      KEYCLOAK_ADMIN_REALM: ${KEYCLOAK_REALM:-contract-manager}
+      KEYCLOAK_ADMIN_CLIENT_ID: ${KEYCLOAK_ADMIN_CLIENT_ID:-contract-manager-admin-api}
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-change-me-local-admin-api}
       NOTIFICATION_CRON: ${NOTIFICATION_CRON:-0 0 8 * * *}
       MAIL_HOST: ${MAIL_HOST:-}
       MAIL_PORT: ${MAIL_PORT:-587}

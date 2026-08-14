@@ -41,6 +41,20 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request, Map.of());
     }
 
+    @ExceptionHandler(KeycloakAdminException.class)
+    ResponseEntity<ApiErrorResponse> handleKeycloakAdmin(
+            KeycloakAdminException exception, HttpServletRequest request) {
+        if (exception.getStatus() == HttpStatus.CONFLICT.value()) {
+            return response(HttpStatus.CONFLICT,
+                    "Não é permitido remover a role ADMIN do próprio usuário.",
+                    request, Map.of());
+        }
+        HttpStatus status = exception.getStatus() == HttpStatus.BAD_GATEWAY.value()
+                ? HttpStatus.BAD_GATEWAY : HttpStatus.SERVICE_UNAVAILABLE;
+        return response(status, "Não foi possível consultar a administração de usuários.",
+                request, Map.of());
+    }
+
     @ExceptionHandler(InvalidContractDateRangeException.class)
     ResponseEntity<ApiErrorResponse> handleInvalidRange(
             InvalidContractDateRangeException exception, HttpServletRequest request) {

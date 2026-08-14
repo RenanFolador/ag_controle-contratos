@@ -36,6 +36,28 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "contract-manager-admin-api",
+      "name": "Contract Manager Admin API",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "change-me-local-admin-api",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-contract-manager-admin-api",
+      "enabled": true,
+      "serviceAccountClientId": "contract-manager-admin-api",
+      "clientRoles": {
+        "realm-management": ["manage-users", "query-users", "view-users", "view-realm"]
+      }
     }
   ]
 }
