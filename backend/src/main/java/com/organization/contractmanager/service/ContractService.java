@@ -7,6 +7,7 @@ import com.organization.contractmanager.dto.ContractCreateRequest;
 import com.organization.contractmanager.dto.ContractResponse;
 import com.organization.contractmanager.dto.ContractSummaryResponse;
 import com.organization.contractmanager.dto.ContractUpdateRequest;
+import com.organization.contractmanager.dto.ContractRenewalRequest;
 import com.organization.contractmanager.dto.PageResponse;
 import com.organization.contractmanager.dto.ContractHistoryResponse;
 import com.organization.contractmanager.exception.ContractNotFoundException;
@@ -114,6 +115,10 @@ public class ContractService {
         LocalDate previousEndDate = contract.getEndDate();
         String previousValue = snapshot(contract);
         boolean expirationDateChanged = !Objects.equals(previousEndDate, request.endDate());
+        if (expirationDateChanged && request.endDate().isAfter(previousEndDate)) {
+            throw new IllegalArgumentException(
+                    "A vigência deve ser alterada pela operação de renovação do contrato.");
+        }
 
         mapper.update(contract, request, currentActor());
         Contract saved = saveTranslatingDuplicate(contract);
@@ -125,6 +130,30 @@ public class ContractService {
                     "endDate=" + previousEndDate, "endDate=" + saved.getEndDate());
             notificationScheduleService.rescheduleForExpirationChange(saved, previousEndDate);
         }
+        return mapper.toResponse(saved);
+    }
+
+    @Transactional
+    public ContractResponse renew(UUID id, ContractRenewalRequest request) {
+        Contract contract = getContract(id);
+        if (contract.getStatus() != ContractStatus.ACTIVE) {
+            throw new IllegalStateException("Somente contratos ativos podem ser renovados.");
+        }
+        LocalDate previousEndDate = contract.getEndDate();
+        if (!request.newEndDate().isAfter(previousEndDate)) {
+            throw new IllegalArgumentException(
+                    "A nova data de vencimento deve ser posterior à vigência atual do contrato.");
+        }
+
+        String actor = currentActor();
+        contract.setEndDate(request.newEndDate());
+        contract.setUpdatedBy(actor);
+        Contract saved = repository.saveAndFlush(contract);
+        notificationScheduleService.rescheduleForExpirationChange(saved, previousEndDate);
+        historyService.record(saved.getId(), actor, "CONTRACT", saved.getId(),
+                HistoryAction.RENEW_CONTRACT,
+                "endDate=" + previousEndDate,
+                renewalSnapshot(request));
         return mapper.toResponse(saved);
     }
 
@@ -210,5 +239,19 @@ public class ContractService {
                 + ";startDate=" + contract.getStartDate()
                 + ";endDate=" + contract.getEndDate()
                 + ";status=" + contract.getStatus();
+    }
+
+    private String renewalSnapshot(ContractRenewalRequest request) {
+        return "endDate=" + request.newEndDate()
+                + ";reference=" + sanitizeHistoryValue(request.reference())
+                + ";reason=" + sanitizeHistoryValue(request.reason())
+                + ";notes=" + sanitizeHistoryValue(request.notes());
+    }
+
+    private String sanitizeHistoryValue(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return value.trim().replace(';', ',').replace('\n', ' ').replace('\r', ' ');
     }
 }

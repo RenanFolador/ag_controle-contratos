@@ -6,6 +6,8 @@ notificações de vencimento, auditoria, dashboard e relatórios.
 ## Funcionalidades do MVP
 
 - CRUD de contratos e pessoas, com encerramento/cancelamento e desativação lógica.
+- Renovação/prorrogação explícita de contratos ativos, com referência, motivo,
+  observações, histórico da vigência anterior e reagendamento dos avisos.
 - Vínculos históricos de gestores, fiscais titulares e substitutos.
 - Pesquisa, paginação, ordenação e filtros de contratos executados no banco.
 - Prazos de notificação configuráveis e schedules recalculados ao alterar a vigência.
@@ -166,7 +168,7 @@ docker compose build
 
 ## Operação e segurança
 
-- Flyway valida e aplica oito migrations; `ddl-auto=validate` impede criação
+- Flyway valida e aplica nove migrations; `ddl-auto=validate` impede criação
   implícita de tabelas.
 - Constraints únicas protegem número do contrato, CPF informado, prazos,
   schedules e notificações por contrato/pessoa/vigência/prazo/canal.

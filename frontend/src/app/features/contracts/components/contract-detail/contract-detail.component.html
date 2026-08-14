@@ -1,13 +1,21 @@
 @if (contract(); as item) {
   <header><div><a mat-button routerLink="/contracts"><mat-icon>arrow_back</mat-icon>Voltar</a><h1>Contrato {{ item.contractNumber }}</h1></div>
     <div class="actions">@if (permissions.canManageContracts()) { <a mat-stroked-button [routerLink]="['/contracts', item.id, 'edit']"><mat-icon>edit</mat-icon>Editar</a>
+      @if (item.status === 'ACTIVE') { <button mat-flat-button (click)="renew()"><mat-icon>event_repeat</mat-icon>Renovar contrato</button> }
       @if (item.status === 'ACTIVE' || item.status === 'SUSPENDED') { <button mat-stroked-button (click)="close()">Encerrar</button><button mat-flat-button color="warn" (click)="cancel()">Cancelar contrato</button> } }</div></header>
   <mat-card><mat-card-content><dl>
     <div><dt>Status</dt><dd>{{ item.status }}</dd></div><div><dt>Processo</dt><dd>{{ item.processNumber || '—' }}</dd></div>
     <div><dt>Empresa</dt><dd>{{ item.companyName }}</dd></div><div><dt>CNPJ</dt><dd>{{ item.companyCnpj || '—' }}</dd></div>
-    <div><dt>Início</dt><dd>{{ item.startDate | date:'dd/MM/yyyy':'UTC' }}</dd></div><div><dt>Fim</dt><dd>{{ item.endDate | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+    <div><dt>Início</dt><dd>{{ item.startDate | date:'dd/MM/yyyy':'UTC' }}</dd></div><div><dt>Vigência atual</dt><dd>{{ item.endDate | date:'dd/MM/yyyy':'UTC' }}</dd></div>
     <div><dt>Valor inicial</dt><dd>{{ item.initialValue | currency:'BRL' }}</dd></div><div class="wide"><dt>Objeto</dt><dd>{{ item.object }}</dd></div>
     <div class="wide"><dt>Observações</dt><dd>{{ item.notes || '—' }}</dd></div>
   </dl></mat-card-content></mat-card>
+  @if (history().length) {
+    <mat-card class="history-card"><mat-card-header><mat-card-title>Histórico</mat-card-title></mat-card-header><mat-card-content>
+      <div class="history-list">@for (entry of history(); track entry.id) {
+        <div><strong>{{ entry.action === 'RENEW_CONTRACT' ? 'Renovação de vigência' : entry.action }}</strong><span>{{ entry.timestamp | date:'dd/MM/yyyy HH:mm' }} · {{ entry.actor }}</span><small>{{ entry.oldValue || '—' }} → {{ entry.newValue || '—' }}</small></div>
+      }</div>
+    </mat-card-content></mat-card>
+  }
   <app-contract-assignments [contractId]="item.id" />
 }

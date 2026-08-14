@@ -34,6 +34,22 @@ export interface ContractPayload {
   notes: string | null;
 }
 
+export interface ContractRenewalPayload {
+  newEndDate: string;
+  reason: string;
+  reference: string;
+  notes: string | null;
+}
+
+export type HistoryAction = 'CREATE_CONTRACT' | 'UPDATE_CONTRACT' | 'CHANGE_EXPIRATION_DATE'
+  | 'RENEW_CONTRACT' | 'CLOSE_CONTRACT' | 'CANCEL_CONTRACT' | 'ADD_ASSIGNMENT'
+  | 'REMOVE_ASSIGNMENT' | 'NOTIFICATION_SENT' | 'NOTIFICATION_FAILED';
+
+export interface ContractHistory {
+  id: string; actor: string; timestamp: string; entityType: string; entityId: string;
+  action: HistoryAction; oldValue: string | null; newValue: string | null;
+}
+
 export interface PageResponse<T> {
   content: T[];
   page: number;

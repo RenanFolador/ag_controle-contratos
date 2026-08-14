@@ -1,0 +1,3 @@
+.renewal-form { display: grid; min-width: min(32rem, 75vw); gap: .25rem; margin-top: 1rem; }
+.warning { padding: .75rem; border-radius: .5rem; background: var(--mat-sys-secondary-container); color: var(--mat-sys-on-secondary-container); }
+@media (max-width: 600px) { .renewal-form { min-width: 0; } }

@@ -36,4 +36,21 @@ describe('ContractService', () => {
     expect(request.request.method).toBe('POST');
     request.flush({});
   });
+
+  it('sends renewal data to the dedicated endpoint', () => {
+    const payload = { newEndDate: '2027-12-31', reason: 'Prorrogação',
+      reference: '1º Termo Aditivo', notes: null };
+    service.renew('contract-id', payload).subscribe();
+    const request = http.expectOne('http://backend/api/v1/contracts/contract-id/renew');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(payload);
+    request.flush({});
+  });
+
+  it('loads contract history', () => {
+    service.history('contract-id').subscribe();
+    const request = http.expectOne('http://backend/api/v1/contracts/contract-id/history');
+    expect(request.request.method).toBe('GET');
+    request.flush([]);
+  });
 });

@@ -4,6 +4,7 @@ import com.organization.contractmanager.dto.ContractCreateRequest;
 import com.organization.contractmanager.dto.ContractResponse;
 import com.organization.contractmanager.dto.ContractSummaryResponse;
 import com.organization.contractmanager.dto.ContractUpdateRequest;
+import com.organization.contractmanager.dto.ContractRenewalRequest;
 import com.organization.contractmanager.dto.PageResponse;
 import com.organization.contractmanager.dto.ContractHistoryResponse;
 import com.organization.contractmanager.domain.ContractStatus;
@@ -82,6 +83,12 @@ public class ContractController {
     @PostMapping("/{id}/close")
     public ContractResponse close(@PathVariable UUID id) {
         return service.close(id);
+    }
+
+    @PostMapping("/{id}/renew")
+    public ContractResponse renew(
+            @PathVariable UUID id, @Valid @RequestBody ContractRenewalRequest request) {
+        return service.renew(id, request);
     }
 
     @PostMapping("/{id}/cancel")

@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Renovar contrato</h2>
+<mat-dialog-content>
+  <p><strong>Contrato:</strong> {{ contract.contractNumber }}</p>
+  <p><strong>Vigência atual:</strong> {{ contract.endDate | date:'dd/MM/yyyy':'UTC' }}</p>
+  <form [formGroup]="form" class="renewal-form">
+    <mat-form-field appearance="outline"><mat-label>Nova vigência</mat-label><input matInput type="date" formControlName="newEndDate" [min]="contract.endDate" />
+      @if (form.controls.newEndDate.hasError('required')) { <mat-error>Informe a nova vigência.</mat-error> }
+      @if (form.controls.newEndDate.hasError('notAfterCurrent')) { <mat-error>A nova data deve ser posterior à vigência atual.</mat-error> }
+    </mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Referência</mat-label><input matInput formControlName="reference" placeholder="1º Termo Aditivo" /><mat-error>Informe o documento ou termo.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Motivo</mat-label><input matInput formControlName="reason" placeholder="Prorrogação de vigência" /><mat-error>Informe o motivo.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Observações</mat-label><textarea matInput rows="3" formControlName="notes"></textarea></mat-form-field>
+  </form>
+  @if (form.controls.newEndDate.valid) { <p class="warning">A vigência será alterada para {{ form.controls.newEndDate.value | date:'dd/MM/yyyy':'UTC' }}. Avisos pendentes da vigência anterior serão cancelados e novos avisos serão agendados.</p> }
+</mat-dialog-content>
+<mat-dialog-actions align="end"><button mat-button type="button" (click)="cancel()">Cancelar</button><button mat-flat-button type="button" (click)="renew()" [disabled]="form.invalid">Renovar contrato</button></mat-dialog-actions>

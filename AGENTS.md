@@ -77,7 +77,7 @@ backend/
     service/       regras de negócio e providers
   src/main/resources/
     application*.yml
-    db/migration/  migrations Flyway V1 a V8
+  db/migration/  migrations Flyway V1 a V9
   src/test/java/   testes unitários, MVC, JPA, segurança e integração
 
 frontend/
@@ -145,8 +145,8 @@ O backend usa uma arquitetura em camadas dentro do package base
 
 Principais rotas REST existentes:
 
-- `/api/v1/contracts`: CRUD, filtros/paginação, fechamento, cancelamento,
-  histórico e `/assignments`.
+- `/api/v1/contracts`: CRUD, filtros/paginação, renovação, fechamento,
+  cancelamento, histórico e `/assignments`.
 - `/api/v1/persons`: CRUD e pesquisa por nome; desativação é lógica via update.
 - `/api/v1/notifications`: consulta paginada e filtrada.
 - `/api/v1/admin/notification-deadlines`: administração de prazos para ADMIN.
@@ -310,6 +310,8 @@ Migrations presentes:
 7. `V7__create_contract_history.sql`: auditoria das ações principais.
 8. `V8__add_operational_query_indexes.sql`: índices compostos de contratos e
    notificações.
+9. `V9__add_contract_renewal_history_action.sql`: adiciona a ação específica de
+   renovação à constraint do histórico contratual.
 
 As entidades principais são `Contract`, `Person`, `ContractAssignment`,
 `NotificationDeadline`, `NotificationSchedule`, `Notification`, e
@@ -445,6 +447,8 @@ npm test -- --watch=false
 O MVP atualmente possui:
 
 - CRUD de contratos e pessoas, com validações e histórico de responsáveis.
+- Renovação de contratos ativos com histórico explícito da vigência e
+  reagendamento dos avisos pendentes.
 - Fechamento/cancelamento de contratos e desativação lógica de pessoas.
 - Pesquisa, filtros, ordenação e paginação de contratos e notificações.
 - Dashboard com contagens agregadas de ativos, vencidos, próximos do vencimento

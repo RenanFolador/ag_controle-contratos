@@ -12,6 +12,7 @@ import com.organization.contractmanager.domain.ContractStatus;
 import com.organization.contractmanager.domain.HistoryAction;
 import com.organization.contractmanager.dto.ContractCreateRequest;
 import com.organization.contractmanager.dto.ContractUpdateRequest;
+import com.organization.contractmanager.dto.ContractRenewalRequest;
 import com.organization.contractmanager.exception.ContractNotFoundException;
 import com.organization.contractmanager.exception.DuplicateContractNumberException;
 import com.organization.contractmanager.exception.InvalidContractDateRangeException;
@@ -137,17 +138,63 @@ class ContractServiceTests {
         LocalDate newEndDate = previousEndDate.plusMonths(3);
         when(repository.findById(id)).thenReturn(Optional.of(contract));
         when(repository.findByContractNumber("025/2026")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(id, updateRequest(newEndDate)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("operação de renovação");
+        assertThat(contract.getEndDate()).isEqualTo(previousEndDate);
+        verify(notificationScheduleService, never()).rescheduleForExpirationChange(any(), any());
+    }
+
+    @Test
+    void renewsActiveContractAndRecordsStructuredHistory() {
+        UUID id = UUID.randomUUID();
+        Contract contract = contract("025/2026");
+        LocalDate previousEndDate = contract.getEndDate();
+        LocalDate newEndDate = previousEndDate.plusYears(1);
+        when(repository.findById(id)).thenReturn(Optional.of(contract));
         when(repository.saveAndFlush(contract)).thenReturn(contract);
 
-        service.update(id, updateRequest(newEndDate));
+        var response = service.renew(id, new ContractRenewalRequest(
+                newEndDate, "Prorrogação de vigência", "1º Termo Aditivo", "Mais 12 meses"));
 
-        assertThat(contract.getEndDate()).isEqualTo(newEndDate);
-        verify(notificationScheduleService)
-                .rescheduleForExpirationChange(contract, previousEndDate);
+        assertThat(response.endDate()).isEqualTo(newEndDate);
+        assertThat(contract.getUpdatedBy()).isEqualTo("manager");
+        verify(notificationScheduleService).rescheduleForExpirationChange(contract, previousEndDate);
         verify(historyService).record(any(), org.mockito.ArgumentMatchers.eq("manager"),
                 org.mockito.ArgumentMatchers.eq("CONTRACT"), any(),
-                org.mockito.ArgumentMatchers.eq(HistoryAction.CHANGE_EXPIRATION_DATE),
-                any(), any());
+                org.mockito.ArgumentMatchers.eq(HistoryAction.RENEW_CONTRACT),
+                org.mockito.ArgumentMatchers.eq("endDate=" + previousEndDate),
+                org.mockito.ArgumentMatchers.contains("reference=1º Termo Aditivo"));
+    }
+
+    @Test
+    void rejectsRenewalDateThatIsNotAfterCurrentExpiration() {
+        UUID id = UUID.randomUUID();
+        Contract contract = contract("025/2026");
+        when(repository.findById(id)).thenReturn(Optional.of(contract));
+        var request = new ContractRenewalRequest(
+                contract.getEndDate(), "Motivo", "Termo", null);
+
+        assertThatThrownBy(() -> service.renew(id, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("A nova data de vencimento deve ser posterior à vigência atual do contrato.");
+        verify(repository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void rejectsRenewalOfClosedAndCancelledContracts() {
+        for (ContractStatus status : java.util.List.of(ContractStatus.CLOSED, ContractStatus.CANCELLED)) {
+            UUID id = UUID.randomUUID();
+            Contract contract = contract("025/2026");
+            contract.setStatus(status);
+            when(repository.findById(id)).thenReturn(Optional.of(contract));
+            var request = new ContractRenewalRequest(
+                    contract.getEndDate().plusYears(1), "Motivo", "Termo", null);
+            assertThatThrownBy(() -> service.renew(id, request))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Somente contratos ativos podem ser renovados.");
+        }
     }
 
     private ContractCreateRequest createRequest(LocalDate startDate, LocalDate endDate) {

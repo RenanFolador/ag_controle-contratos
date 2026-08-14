@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BACKEND_URL } from '../../../core/config/api.config';
-import { Contract, ContractPayload, ContractQuery, ContractSummary, PageResponse } from '../models/contract';
+import { Contract, ContractHistory, ContractPayload, ContractQuery, ContractRenewalPayload, ContractSummary, PageResponse } from '../models/contract';
 
 @Injectable({ providedIn: 'root' })
 export class ContractService {
@@ -23,4 +23,6 @@ export class ContractService {
   update(id: string, payload: ContractPayload) { return this.http.put<Contract>(`${this.baseUrl}/${id}`, payload); }
   close(id: string) { return this.http.post<Contract>(`${this.baseUrl}/${id}/close`, {}); }
   cancel(id: string) { return this.http.post<Contract>(`${this.baseUrl}/${id}/cancel`, {}); }
+  renew(id: string, payload: ContractRenewalPayload) { return this.http.post<Contract>(`${this.baseUrl}/${id}/renew`, payload); }
+  history(id: string) { return this.http.get<ContractHistory[]>(`${this.baseUrl}/${id}/history`); }
 }

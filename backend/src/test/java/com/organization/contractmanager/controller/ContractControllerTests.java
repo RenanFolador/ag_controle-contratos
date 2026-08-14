@@ -117,6 +117,34 @@ class ContractControllerTests {
     }
 
     @Test
+    @WithMockUser(roles = "CONTRACT_MANAGER")
+    void renewsContractByDelegatingToService() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(service.renew(org.mockito.ArgumentMatchers.eq(id), any()))
+                .thenReturn(response(id, ContractStatus.ACTIVE));
+        mockMvc.perform(post("/api/v1/contracts/{id}/renew", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"newEndDate":"2027-12-31","reason":"Prorrogação",
+                                 "reference":"1º Termo Aditivo","notes":"Mais 12 meses"}
+                                """))
+                .andExpect(status().isOk());
+        verify(service).renew(org.mockito.ArgumentMatchers.eq(id), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "VIEWER")
+    void viewerCannotRenewContract() throws Exception {
+        mockMvc.perform(post("/api/v1/contracts/{id}/renew", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"newEndDate":"2027-12-31","reason":"Prorrogação",
+                                 "reference":"1º Termo Aditivo"}
+                                """))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     void returnsContractHistory() throws Exception {
         UUID contractId = UUID.randomUUID();
