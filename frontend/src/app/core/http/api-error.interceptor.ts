@@ -1,8 +1,8 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { catchError, finalize, throwError } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
 import { LoadingService } from './loading.service';
 
 type ApiError = { message?: string; fieldErrors?: Record<string, string> };
@@ -17,7 +17,7 @@ const fallbackMessages: Record<number, string> = {
 
 export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const snackBar = inject(MatSnackBar);
-  const auth = inject(AuthService);
+  const router = inject(Router);
   const loading = inject(LoadingService);
   loading.start();
 
@@ -40,7 +40,9 @@ export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
       snackBar.open(message, 'Fechar', { duration: 6000 });
 
       if (error.status === 401) {
-        void auth.login(window.location.href);
+        void router.navigate(['/login'], {
+          queryParams: { returnUrl: router.url },
+        });
       }
       return throwError(() => error);
     }),

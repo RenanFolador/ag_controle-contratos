@@ -2,24 +2,22 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from '../auth/auth.service';
+import { Router, provideRouter } from '@angular/router';
 import { apiErrorInterceptor } from './api-error.interceptor';
 import { LoadingService } from './loading.service';
 import { HttpClient } from '@angular/common/http';
 
 describe('apiErrorInterceptor', () => {
   const snackBar = { open: vi.fn() };
-  const auth = { login: vi.fn() };
 
   beforeEach(() => {
     snackBar.open.mockReset();
-    auth.login.mockReset();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([apiErrorInterceptor])),
         provideHttpClientTesting(),
+        provideRouter([]),
         { provide: MatSnackBar, useValue: snackBar },
-        { provide: AuthService, useValue: auth },
       ],
     });
   });
@@ -43,11 +41,16 @@ describe('apiErrorInterceptor', () => {
     expect(loading.active()).toBe(false);
   });
 
-  it('starts a new login on 401', () => {
+  it('navigates to the application login page on 401', async () => {
     const http = TestBed.inject(HttpClient);
     const controller = TestBed.inject(HttpTestingController);
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     http.get('/api/resource').subscribe({ error: () => undefined });
     controller.expectOne('/api/resource').flush(null, { status: 401, statusText: 'Unauthorized' });
-    expect(auth.login).toHaveBeenCalled();
+    await Promise.resolve();
+    expect(navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { returnUrl: '/' },
+    });
   });
 });

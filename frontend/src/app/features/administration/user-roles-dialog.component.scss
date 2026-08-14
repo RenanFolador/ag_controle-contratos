@@ -1,0 +1,75 @@
+.user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  color: var(--app-navy);
+  background: #f1f6fa;
+  border-radius: 10px;
+}
+
+.user-summary > mat-icon {
+  color: var(--app-cyan);
+  font-size: 30px;
+}
+
+.user-summary div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.user-summary span,
+.dialog-description,
+.role-description,
+.role-code {
+  color: var(--app-muted);
+  font-size: 0.82rem;
+}
+
+.dialog-description {
+  margin: 1.25rem 0 0.75rem;
+}
+
+.roles-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.roles-list mat-checkbox {
+  padding: 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 9px;
+}
+
+.roles-list mat-checkbox:hover {
+  background: #f7fafc;
+}
+
+.role-label,
+.role-description,
+.role-code {
+  display: block;
+}
+
+.role-label {
+  color: var(--app-navy);
+  font-weight: 700;
+}
+
+.role-description {
+  margin-top: 0.2rem;
+  line-height: 1.35;
+}
+
+.role-code {
+  margin-top: 0.25rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+mat-dialog-actions {
+  padding-bottom: 0.25rem;
+}

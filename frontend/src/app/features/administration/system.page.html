@@ -1,0 +1,59 @@
+<header class="page-header">
+  <div>
+    <nav class="breadcrumbs" aria-label="Navegação interna">
+      <a routerLink="/administration">Configurações</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span>Sistema</span>
+    </nav>
+    <span class="eyebrow">Configurações</span>
+    <h1>Informações do sistema</h1>
+    <p>Consulte informações operacionais sem expor configurações sensíveis.</p>
+  </div>
+  <a mat-stroked-button routerLink="/administration">
+    <mat-icon>arrow_back</mat-icon>
+    Configurações
+  </a>
+</header>
+
+<section class="system-grid">
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>apps</mat-icon></div>
+      <mat-card-title>Aplicação</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>Sistema de Gestão de Contratos</mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>dns</mat-icon></div>
+      <mat-card-title>Backend</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <span class="status" [class.unavailable]="backendStatus() === 'Indisponível'">
+        {{ backendStatus() }}
+      </span>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>verified_user</mat-icon></div>
+      <mat-card-title>Autenticação</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>Keycloak</mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>info</mat-icon></div>
+      <mat-card-title>Ambiente</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>Informação não disponibilizada nesta versão.</mat-card-content>
+  </mat-card>
+</section>
+
+<button mat-stroked-button type="button" [disabled]="loading()" (click)="checkHealth()">
+  <mat-icon>refresh</mat-icon>
+  {{ loading() ? 'Verificando...' : 'Verificar backend novamente' }}
+</button>

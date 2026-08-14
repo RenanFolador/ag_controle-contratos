@@ -174,18 +174,20 @@ Angular Material.
 - `features/dashboard`: cards de métricas e contratos próximos do vencimento.
 - `features/notifications`: consulta paginada, filtros e diálogo de falha.
 - `features/administration`: CRUD de `NotificationDeadline` e página de
-  configurações de usuários/roles.
+  configurações de usuários/roles, central administrativa, notificações e
+  informações do sistema.
 - `features/reports`: filtros e download de CSV.
 - `shared`: componentes reutilizáveis, atualmente incluindo placeholder de
   feature.
 
-Rotas principais do Angular: `/dashboard`, `/contracts`,
+Rotas principais do Angular: `/login`, `/dashboard`, `/contracts`,
 `/contracts/new`, `/contracts/:id`, `/contracts/:id/edit`,
 `/contracts/expiring`, `/persons`, `/persons/new`, `/persons/:id`,
 `/persons/:id/edit`, `/notificacoes` (com alias `/notifications`), `/reports`,
-`/administration` e `/administration/users`. As rotas de administração também
-usam um guard de role ADMIN; o conjunto de rotas é protegido pelo guard de
-autenticação.
+`/administration`, `/administration/users`, `/administration/notifications` e
+`/administration/system`. A rota `/login` é pública e inicia o login somente
+após ação explícita do usuário; as rotas de administração usam um guard de role
+ADMIN e as demais rotas são protegidas pelo guard de autenticação.
 
 ## 5. Convenções de desenvolvimento
 

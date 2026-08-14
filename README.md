@@ -19,6 +19,9 @@ notificações de vencimento, auditoria, dashboard e relatórios.
 - Papéis `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e `VIEWER`.
 - Administração de usuários Keycloak por ADMIN, com atribuição das quatro roles
   da aplicação.
+- Página de acesso `/login` com entrada explícita via Keycloak e fluxo OIDC/PKCE.
+- Central administrativa `Configurações`, com usuários e permissões, prazos de
+  notificações e informações do sistema.
 
 ## Arquitetura
 
@@ -90,12 +93,22 @@ final; controles visuais do Angular são apenas UX. Permanecem públicos somente
 - `INSPECTOR`: contratos vinculados à pessoa indicada pelo claim UUID `person_id`.
 - `VIEWER`: consultas permitidas, sem mutações.
 
-O frontend usa Authorization Code Flow com PKCE e mantém tokens apenas em memória.
+Ao abrir o frontend, usuários não autenticados são direcionados para `/login`.
+O botão **Entrar com Keycloak** inicia o Authorization Code Flow com PKCE e, após
+o retorno, leva o usuário ao dashboard (ou à rota originalmente solicitada).
+A aplicação não solicita nem armazena senha; o frontend mantém tokens apenas em
+memória. O backend continua validando o JWT e sendo a autoridade final.
 
 ### Administração de usuários
 
-Administradores podem acessar `/administration/users` pelo menu Administração.
-A página consulta `/api/v1/admin/users` e atualiza roles com
+Administradores acessam a central **Configurações** em `/administration`. A área
+é composta por:
+
+- `/administration/users`: usuários e permissões;
+- `/administration/notifications`: configuração dos períodos de aviso;
+- `/administration/system`: informações operacionais não sensíveis.
+
+A página de usuários consulta `/api/v1/admin/users` e atualiza roles com
 `PUT /api/v1/admin/users/{id}/roles`. Tanto a rota Angular quanto a API exigem
 ADMIN; o backend nunca confia somente no controle visual do frontend.
 
@@ -110,6 +123,10 @@ Keycloak ou inicialize um volume local novo.
 O endpoint altera somente `ADMIN`, `CONTRACT_MANAGER`, `INSPECTOR` e `VIEWER`,
 preserva outras roles internas do Keycloak e impede que um administrador remova a
 role ADMIN do próprio usuário pela aplicação.
+
+O gerenciamento de permissões realizado pela aplicação modifica as roles do
+usuário no Keycloak através do backend. Nenhuma senha, client secret, JWT ou
+credencial administrativa é exibida no frontend.
 
 ## Execução sem Docker
 

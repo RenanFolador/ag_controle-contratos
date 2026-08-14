@@ -11,6 +11,14 @@ const authStub = {
   hasAnyRole: () => true,
 };
 
+const viewerAuthStub = {
+  authenticated: true,
+  userName: 'viewer',
+  login: () => Promise.resolve(),
+  logout: () => Promise.resolve(),
+  hasAnyRole: (...roles: string[]) => roles.includes('VIEWER'),
+};
+
 describe('App', () => {
   it('creates the application shell', async () => {
     await TestBed.configureTestingModule({
@@ -31,6 +39,17 @@ describe('App', () => {
     expect(text).toContain('Dashboard');
     expect(text).toContain('Novo contrato');
     expect(text).toContain('Próximos do vencimento');
-    expect(text).toContain('Administração');
+    expect(text).toContain('Configurações');
+  });
+
+  it('hides Configurações from users without ADMIN', async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([]), { provide: AuthService, useValue: viewerAuthStub }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Configurações');
   });
 });

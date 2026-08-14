@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Gerenciar permissões</h2>
+
+<mat-dialog-content>
+  <div class="user-summary">
+    <mat-icon>account_circle</mat-icon>
+    <div>
+      <strong>{{ data.user.firstName || data.user.username }} {{ data.user.lastName || '' }}</strong>
+      <span>{{ data.user.username }} · {{ data.user.email || 'E-mail não informado' }}</span>
+    </div>
+  </div>
+
+  <p class="dialog-description">Selecione as permissões que este usuário poderá utilizar.</p>
+
+  <div class="roles-list">
+    @for (option of data.roleOptions; track option.value) {
+      <mat-checkbox
+        [checked]="hasRole(option.value)"
+        (change)="toggleRole(option.value, $event.checked)"
+      >
+        <span class="role-label">{{ option.label }}</span>
+        <span class="role-description">{{ option.description }}</span>
+        <span class="role-code">{{ option.value }}</span>
+      </mat-checkbox>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" type="button" (click)="save()">
+    <mat-icon>save</mat-icon>
+    Salvar
+  </button>
+</mat-dialog-actions>

@@ -4,6 +4,10 @@ import { adminGuard } from './core/auth/admin.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login.page').then((m) => m.LoginPage),
+  },
+  {
     path: '',
     canActivateChild: [authGuard],
     children: [
@@ -103,6 +107,20 @@ export const routes: Routes = [
           import('./features/administration/user-settings.page').then(
             (m) => m.UserSettingsPage,
           ),
+      },
+      {
+        path: 'administration/notifications',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/administration/notification-settings.page').then(
+            (m) => m.NotificationSettingsPage,
+          ),
+      },
+      {
+        path: 'administration/system',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/administration/system.page').then((m) => m.SystemPage),
       },
       { path: '**', redirectTo: 'dashboard' },
     ],

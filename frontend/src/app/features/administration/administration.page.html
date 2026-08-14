@@ -1,64 +1,60 @@
 <header class="page-header">
   <div>
-    <h1>Administração</h1>
-    <p>Configure os prazos utilizados para gerar avisos de vencimento.</p>
+    <span class="eyebrow">Administração</span>
+    <h1>Configurações</h1>
+    <p>Gerencie usuários, permissões e parâmetros do Sistema de Gestão de Contratos.</p>
   </div>
-  <a mat-stroked-button routerLink="/administration/users">
-    <mat-icon>manage_accounts</mat-icon>
-    Configurações de usuários
-  </a>
 </header>
-<mat-card class="form-card"
-  ><mat-card-content
-    ><form (ngSubmit)="add()">
-      <mat-form-field appearance="outline"
-        ><mat-label>Dias antes do vencimento</mat-label
-        ><input matInput type="number" min="1" [formControl]="daysBefore" />
-        @if (daysBefore.hasError('required') || daysBefore.hasError('min')) {
-          <mat-error>Informe um prazo maior que zero.</mat-error>
-        }
-      </mat-form-field>
-      <mat-checkbox [formControl]="enabled">Criar habilitado</mat-checkbox>
-      <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
-        <mat-icon>add</mat-icon>{{ saving() ? 'Adicionando...' : 'Adicionar prazo' }}
-      </button>
-    </form></mat-card-content
-  ></mat-card
->
-<mat-card
-  ><mat-card-content
-    ><div class="table-container">
-      <table mat-table [dataSource]="deadlines()">
-        <ng-container matColumnDef="daysBefore"
-          ><th mat-header-cell *matHeaderCellDef>Prazo</th>
-          <td mat-cell *matCellDef="let item">{{ item.daysBefore }} dias</td></ng-container
-        >
-        <ng-container matColumnDef="enabled"
-          ><th mat-header-cell *matHeaderCellDef>Habilitado</th>
-          <td mat-cell *matCellDef="let item">
-            <mat-slide-toggle
-              [checked]="item.enabled"
-              (change)="toggle(item, $event.checked)"
-            /></td
-        ></ng-container>
-        <ng-container matColumnDef="actions"
-          ><th mat-header-cell *matHeaderCellDef>Ações</th>
-          <td mat-cell *matCellDef="let item">
-            <button mat-icon-button color="warn" (click)="remove(item)" aria-label="Remover prazo">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td></ng-container
-        >
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-      @if (!loading() && deadlines().length === 0) {
-        <p class="empty">Nenhum prazo configurado.</p>
-      }
-    </div></mat-card-content
-  ></mat-card
->
-<p class="policy">
-  Alterações afetam apenas schedules pendentes e futuros. Notificações já processadas ou enviadas
-  são preservadas.
-</p>
+
+<section class="settings-grid" aria-label="Configurações administrativas">
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>manage_accounts</mat-icon></div>
+      <mat-card-title>Usuários e permissões</mat-card-title>
+      <mat-card-subtitle>Gerencie os usuários e os níveis de acesso ao sistema.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Consulte as contas institucionais e atribua as permissões disponíveis.</p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <a mat-flat-button color="primary" routerLink="/administration/users">
+        <mat-icon>arrow_forward</mat-icon>
+        Gerenciar
+      </a>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>notifications</mat-icon></div>
+      <mat-card-title>Notificações</mat-card-title>
+      <mat-card-subtitle>Configure os períodos de aviso de vencimento dos contratos.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Defina com quantos dias de antecedência os responsáveis serão avisados.</p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <a mat-stroked-button routerLink="/administration/notifications">
+        <mat-icon>tune</mat-icon>
+        Configurar
+      </a>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <div mat-card-avatar class="card-icon"><mat-icon>dns</mat-icon></div>
+      <mat-card-title>Sistema</mat-card-title>
+      <mat-card-subtitle>Informações gerais da aplicação e dos serviços.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Consulte o estado do backend e os componentes de autenticação.</p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <a mat-stroked-button routerLink="/administration/system">
+        <mat-icon>visibility</mat-icon>
+        Visualizar
+      </a>
+    </mat-card-actions>
+  </mat-card>
+</section>

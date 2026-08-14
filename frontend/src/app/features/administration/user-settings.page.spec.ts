@@ -55,7 +55,7 @@ describe('UserSettingsPage', () => {
   it('renders users and available role options', () => {
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('Maria Silva');
-    expect(text).toContain('Configurações de usuários');
+    expect(text).toContain('Usuários e permissões');
     expect(fixture.componentInstance.roleOptions).toHaveLength(4);
   });
 

@@ -1,3 +1,4 @@
+@if (auth.authenticated) {
 <mat-sidenav-container class="shell">
   <mat-sidenav
     #sidenav
@@ -89,7 +90,7 @@
           routerLinkActive="active"
           (click)="closeNavigationOnHandset()"
         >
-          <mat-icon matListItemIcon>settings</mat-icon><span matListItemTitle>Administração</span>
+          <mat-icon matListItemIcon>settings</mat-icon><span matListItemTitle>Configurações</span>
         </a>
       }
     </mat-nav-list>
@@ -125,3 +126,6 @@
     <main><router-outlet /></main>
   </mat-sidenav-content>
 </mat-sidenav-container>
+} @else {
+  <router-outlet />
+}

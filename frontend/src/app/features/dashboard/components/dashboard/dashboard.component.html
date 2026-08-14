@@ -1,11 +1,59 @@
 <header><h1>Dashboard</h1><p>Visão geral da carteira de contratos e notificações.</p></header>
 @if(metrics();as data){<section class="cards">
-  <mat-card><mat-card-content><mat-icon>description</mat-icon><span>Contratos ativos</span><strong>{{data.activeContracts}}</strong></mat-card-content></mat-card>
-  <mat-card><mat-card-content><mat-icon>event_busy</mat-icon><span>Vencidos</span><strong>{{data.expiredContracts}}</strong></mat-card-content></mat-card>
-  <mat-card><mat-card-content><mat-icon>event</mat-icon><span>Até 60 dias</span><strong>{{data.expiringIn60Days}}</strong></mat-card-content></mat-card>
-  <mat-card><mat-card-content><mat-icon>schedule</mat-icon><span>Até 30 dias</span><strong>{{data.expiringIn30Days}}</strong></mat-card-content></mat-card>
-  <mat-card><mat-card-content><mat-icon>warning</mat-icon><span>Até 15 dias</span><strong>{{data.expiringIn15Days}}</strong></mat-card-content></mat-card>
-  <mat-card class="failure"><mat-card-content><mat-icon>error</mat-icon><span>Falhas de notificação</span><strong>{{data.failedNotifications}}</strong></mat-card-content></mat-card>
+  <mat-card class="stat-card">
+    <mat-card-content class="stat-card-content">
+      <div class="stat-card-icon"><mat-icon aria-hidden="true">description</mat-icon></div>
+      <div class="stat-card-info">
+        <span class="stat-card-title">Contratos ativos</span>
+        <strong class="stat-card-value">{{ data.activeContracts }}</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="stat-card">
+    <mat-card-content class="stat-card-content">
+      <div class="stat-card-icon"><mat-icon aria-hidden="true">event_busy</mat-icon></div>
+      <div class="stat-card-info">
+        <span class="stat-card-title">Vencidos</span>
+        <strong class="stat-card-value">{{ data.expiredContracts }}</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="stat-card">
+    <mat-card-content class="stat-card-content">
+      <div class="stat-card-icon"><mat-icon aria-hidden="true">event</mat-icon></div>
+      <div class="stat-card-info">
+        <span class="stat-card-title">Até 60 dias</span>
+        <strong class="stat-card-value">{{ data.expiringIn60Days }}</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="stat-card">
+    <mat-card-content class="stat-card-content">
+      <div class="stat-card-icon"><mat-icon aria-hidden="true">schedule</mat-icon></div>
+      <div class="stat-card-info">
+        <span class="stat-card-title">Até 30 dias</span>
+        <strong class="stat-card-value">{{ data.expiringIn30Days }}</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="stat-card">
+    <mat-card-content class="stat-card-content">
+      <div class="stat-card-icon"><mat-icon aria-hidden="true">warning</mat-icon></div>
+      <div class="stat-card-info">
+        <span class="stat-card-title">Até 15 dias</span>
+        <strong class="stat-card-value">{{ data.expiringIn15Days }}</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="stat-card failure">
+    <mat-card-content class="stat-card-content">
+      <div class="stat-card-icon"><mat-icon aria-hidden="true">error</mat-icon></div>
+      <div class="stat-card-info">
+        <span class="stat-card-title">Falhas de notificação</span>
+        <strong class="stat-card-value">{{ data.failedNotifications }}</strong>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </section>}
 <section class="expiring"><h2>Contratos próximos do vencimento</h2><mat-card><mat-card-content><div class="table-container"><table mat-table [dataSource]="contracts()">
   <ng-container matColumnDef="contractNumber"><th mat-header-cell *matHeaderCellDef>Contrato</th><td mat-cell *matCellDef="let item"><a [routerLink]="['/contracts',item.id]">{{item.contractNumber}}</a></td></ng-container>

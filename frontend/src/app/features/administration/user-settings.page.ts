@@ -3,18 +3,24 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { AdminUser, ApplicationRole } from './user';
+import { UserRolesDialogComponent } from './user-roles-dialog.component';
+import {
+  AdminUser,
+  APPLICATION_ROLE_OPTIONS,
+  ApplicationRole,
+  ApplicationRoleOption,
+} from './user';
 import { UserAdminService } from './user.service';
-
-type RoleOption = { value: ApplicationRole; label: string };
 
 @Component({
   selector: 'app-user-settings-page',
@@ -23,11 +29,13 @@ type RoleOption = { value: ApplicationRole; label: string };
     RouterLink,
     MatButtonModule,
     MatCardModule,
+    MatChipsModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatPaginatorModule,
-    MatSelectModule,
+    MatSnackBarModule,
     MatTableModule,
   ],
   templateUrl: './user-settings.page.html',
@@ -35,6 +43,8 @@ type RoleOption = { value: ApplicationRole; label: string };
 })
 export class UserSettingsPage {
   private readonly service = inject(UserAdminService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly roleControls = new Map<string, FormControl<ApplicationRole[]>>();
 
@@ -42,14 +52,10 @@ export class UserSettingsPage {
   readonly total = signal(0);
   readonly loading = signal(false);
   readonly savingUserId = signal<string | null>(null);
+  readonly errorMessage = signal<string | null>(null);
   readonly search = new FormControl('', { nonNullable: true });
-  readonly displayedColumns = ['user', 'email', 'status', 'roles', 'actions'];
-  readonly roleOptions: RoleOption[] = [
-    { value: 'ADMIN', label: 'Administrador' },
-    { value: 'CONTRACT_MANAGER', label: 'Gestor de contratos' },
-    { value: 'INSPECTOR', label: 'Inspetor' },
-    { value: 'VIEWER', label: 'Visualizador' },
-  ];
+  readonly displayedColumns = ['username', 'name', 'email', 'roles', 'actions'];
+  readonly roleOptions: ApplicationRoleOption[] = APPLICATION_ROLE_OPTIONS;
 
   private page = 0;
   private size = 20;
@@ -79,7 +85,7 @@ export class UserSettingsPage {
 
   displayName(user: AdminUser): string {
     const name = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
-    return name || user.username;
+    return name || 'Nome não informado';
   }
 
   refresh(): void {
@@ -97,32 +103,70 @@ export class UserSettingsPage {
     this.load();
   }
 
+  openRoleDialog(user: AdminUser): void {
+    if (this.savingUserId() !== null) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(UserRolesDialogComponent, {
+      width: 'min(560px, calc(100vw - 32px))',
+      maxHeight: '90vh',
+      data: { user, roleOptions: this.roleOptions },
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((roles: ApplicationRole[] | undefined) => {
+        if (roles === undefined) {
+          return;
+        }
+        this.rolesControl(user).setValue(roles);
+        this.save(user);
+      });
+  }
+
   save(user: AdminUser): void {
     if (this.savingUserId() !== null) {
       return;
     }
+
     const roles = this.rolesControl(user).getRawValue();
-    const roleNames = roles.map((role) => this.roleLabel(role)).join(', ') || 'nenhuma role';
-    if (!confirm(`Atualizar as roles de ${this.displayName(user)} para: ${roleNames}?`)) {
+    const roleNames = roles.map((role) => this.roleLabel(role)).join(', ') || 'nenhuma permissão';
+    if (!confirm(`Atualizar as permissões de ${this.displayName(user)} para: ${roleNames}?`)) {
       return;
     }
 
+    this.errorMessage.set(null);
     this.savingUserId.set(user.id);
     this.service
       .updateRoles(user.id, roles)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
-          this.users.update((items) => items.map((item) => (item.id === updated.id ? updated : item)));
+          this.users.update((items) =>
+            items.map((item) => (item.id === updated.id ? updated : item)),
+          );
           this.rolesControl(updated).setValue([...updated.roles]);
           this.savingUserId.set(null);
+          this.snackBar.open('Permissões atualizadas com sucesso.', 'Fechar', {
+            duration: 4000,
+          });
         },
-        error: () => this.savingUserId.set(null),
+        error: () => {
+          this.savingUserId.set(null);
+          this.errorMessage.set('Não foi possível atualizar as permissões do usuário.');
+        },
       });
+  }
+
+  retry(): void {
+    this.load();
   }
 
   private load(): void {
     this.loading.set(true);
+    this.errorMessage.set(null);
     this.service
       .list(this.page, this.size, this.search.value)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -132,7 +176,14 @@ export class UserSettingsPage {
           this.total.set(result.totalElements);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.users.set([]);
+          this.total.set(0);
+          this.loading.set(false);
+          this.errorMessage.set(
+            'Não foi possível acessar o gerenciamento de usuários no momento. Tente novamente mais tarde.',
+          );
+        },
       });
   }
 }
